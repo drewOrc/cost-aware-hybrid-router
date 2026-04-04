@@ -5,3 +5,8 @@ numpy>=1.26.0
 pandas>=2.2.0
 matplotlib>=3.9.0
 tqdm>=4.66.0
+scipy>=1.13.0
+
+# Optional: SetFit baseline (install only if running with --setfit)
+# setfit>=1.0.0
+# sentence-transformers>=3.0.0

@@ -21,3 +21,8 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+
+# Model checkpoints (large binaries — retrain locally)
+checkpoints/
+models/
+results/_smoke.json

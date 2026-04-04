@@ -1,32 +1,37 @@
 """
-evaluate.py — 統一評估所有 Router 變體
+evaluate.py — 統一評估所有 Router 變體（multi-seed + McNemar + SetFit）
 
 跑法：
-    cd experiment/
-    PYTHONPATH=. ANTHROPIC_API_KEY=sk-... python3 src/evaluate.py
+    # 快速（小樣本，單 seed，不跑 SetFit）
+    PYTHONPATH=. ANTHROPIC_API_KEY=sk-... python3 src/evaluate.py \
+        --llm-n 160 --seeds 42
+
+    # 完整 (paper-grade)：n=1000 LLM eval × 3 seeds + SetFit baseline
+    PYTHONPATH=. ANTHROPIC_API_KEY=sk-... python3 src/evaluate.py \
+        --llm-n 1000 --seeds 42 43 44 --setfit --use-tuned-thresholds
 
 輸出：
-    results/metrics.json — 完整數據
-    stdout — 摘要表格
+    results/metrics.json        — 每 seed 的完整數據
+    results/summary.json        — 跨 seed 彙整 (mean ± std) + McNemar
+    stdout                      — 摘要表格
 
-設計：
-- R1 (Keyword), R2 (Embedding), R4 (Hybrid no-LLM) 跑完整 test set（5,500 queries）
-- R3 (LLM) 跑 stratified sample（每 agent 20 筆 = 160 筆）以控制 API 成本
-- R4+LLM (Hybrid with LLM fallback) 只在 R4 低信心時才呼叫 LLM
-- 因 R3/R4+LLM 只在 n=160 評估，這兩者的比較是探索性的，不做為統計顯著的結論
-- 所有結果記錄到 results/metrics.json
+流程：
+- R1, R2, R4-no-LLM 跑完整 test set（5,500 queries）— 無隨機性，只需跑一次
+- R3 LLM、R4+LLM、SetFit 在 LLM sample（stratified，每 agent n筆）上跑
+  每個 seed 抽不同樣本 → 得到多組 (R3, R4+LLM) 結果 → mean ± std + McNemar
+- Thresholds: --use-tuned-thresholds 會讀取 results/tuned_thresholds.json
 """
 
+import argparse
 import json
-import time
 import os
-import sys
 import random
-from pathlib import Path
+import time
 from collections import Counter, defaultdict
+from pathlib import Path
 
 # ─────────────────────────────────────────────
-# 載入資料
+# Paths
 # ─────────────────────────────────────────────
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
@@ -47,117 +52,87 @@ def get_true_agent(item: dict) -> str:
 
 
 # ─────────────────────────────────────────────
-# Stratified sample for LLM Router（控制成本）
+# Stratified sampling
 # ─────────────────────────────────────────────
 
-def stratified_sample(data: list, n_per_agent: int = 50, seed: int = 42) -> list:
-    """每個 agent 取 n 筆，固定 seed 確保可重現"""
+def stratified_sample(data: list, n_per_agent: int, seed: int) -> list:
     rng = random.Random(seed)
     by_agent = defaultdict(list)
     for item in data:
-        agent = get_true_agent(item)
-        by_agent[agent].append(item)
-
+        by_agent[get_true_agent(item)].append(item)
     sampled = []
     for agent, items in sorted(by_agent.items()):
         if len(items) <= n_per_agent:
             sampled.extend(items)
         else:
             sampled.extend(rng.sample(items, n_per_agent))
-
     return sampled
 
 
 # ─────────────────────────────────────────────
-# 評估單一 router
+# Router evaluation (returns correct_flags + metrics)
 # ─────────────────────────────────────────────
 
-def evaluate_router(router_fn, data: list, router_name: str) -> dict:
-    """
-    跑一個 router 在給定資料上，回傳 metrics。
-
-    Returns:
-        {
-            "router": str,
-            "total": int,
-            "correct": int,
-            "accuracy": float,
-            "per_agent": {agent: {"total": int, "correct": int, "accuracy": float}},
-            "confusion": {(true, pred): count},
-            "avg_latency_ms": float,     # 只有 LLM router 有意義
-            "total_input_tokens": int,
-            "total_output_tokens": int,
-            "llm_call_rate": float,       # hybrid only
-        }
-    """
+def evaluate_router(router_fn, data: list, name: str, verbose: bool = True) -> dict:
     total = 0
     correct = 0
+    correct_flags = []
     per_agent = defaultdict(lambda: {"total": 0, "correct": 0})
     confusion = Counter()
     latencies = []
-    total_input_tokens = 0
-    total_output_tokens = 0
-    llm_calls = 0
+    total_in = 0
+    total_out = 0
     stages = Counter()
 
     for i, item in enumerate(data):
         true_agent = get_true_agent(item)
         result = router_fn(item["text"])
-        pred_agent = result["agent"]
+        pred = result["agent"]
+        is_correct = (pred == true_agent)
 
         total += 1
-        if pred_agent == true_agent:
+        correct_flags.append(1 if is_correct else 0)
+        if is_correct:
             correct += 1
             per_agent[true_agent]["correct"] += 1
         per_agent[true_agent]["total"] += 1
+        if not is_correct:
+            confusion[(true_agent, pred)] += 1
 
-        if pred_agent != true_agent:
-            confusion[(true_agent, pred_agent)] += 1
-
-        # LLM-specific metrics
         if "latency_ms" in result:
             latencies.append(result["latency_ms"])
         if "input_tokens" in result:
-            total_input_tokens += result["input_tokens"]
-            total_output_tokens += result["output_tokens"]
-
-        # Hybrid-specific metrics
+            total_in += result["input_tokens"]
+            total_out += result["output_tokens"]
         if "stage" in result:
             stages[result["stage"]] += 1
-            if result["stage"] == "llm":
-                llm_calls += 1
 
-        # Progress
-        if (i + 1) % 500 == 0 or i == len(data) - 1:
-            print(f"    [{router_name}] {i+1}/{len(data)} — running acc: {correct/total*100:.1f}%")
+        if verbose and ((i + 1) % 500 == 0 or i == len(data) - 1):
+            print(f"    [{name}] {i+1}/{len(data)} — running acc: {correct/total*100:.1f}%")
 
-    # Compute per-agent accuracy
-    per_agent_out = {}
-    for agent in sorted(per_agent.keys()):
-        s = per_agent[agent]
-        per_agent_out[agent] = {
+    per_agent_out = {
+        a: {
             "total": s["total"],
             "correct": s["correct"],
             "accuracy": round(s["correct"] / s["total"], 4) if s["total"] > 0 else 0,
         }
-
-    # Top confusions
-    top_confusion = [
-        {"true": t, "predicted": p, "count": c}
-        for (t, p), c in confusion.most_common(15)
-    ]
+        for a, s in sorted(per_agent.items())
+    }
 
     return {
-        "router": router_name,
+        "router": name,
         "total": total,
         "correct": correct,
         "accuracy": round(correct / total, 4),
+        "correct_flags": correct_flags,
         "per_agent": per_agent_out,
-        "top_confusion": top_confusion,
+        "top_confusion": [
+            {"true": t, "predicted": p, "count": c}
+            for (t, p), c in confusion.most_common(15)
+        ],
         "avg_latency_ms": round(sum(latencies) / len(latencies)) if latencies else 0,
-        "total_input_tokens": total_input_tokens,
-        "total_output_tokens": total_output_tokens,
-        "llm_call_rate": round(llm_calls / total, 4) if total > 0 else 0,
+        "total_input_tokens": total_in,
+        "total_output_tokens": total_out,
         "stages": dict(stages) if stages else {},
     }
 
@@ -166,119 +141,230 @@ def evaluate_router(router_fn, data: list, router_name: str) -> dict:
 # Main
 # ─────────────────────────────────────────────
 
+def parse_args():
+    p = argparse.ArgumentParser()
+    p.add_argument("--llm-n", type=int, default=160,
+                   help="Total LLM eval sample size (stratified across 8 classes).")
+    p.add_argument("--seeds", type=int, nargs="+", default=[42],
+                   help="Random seeds for stratified sampling.")
+    p.add_argument("--setfit", action="store_true", help="Include SetFit baseline.")
+    p.add_argument("--use-tuned-thresholds", action="store_true",
+                   help="Load thresholds from results/tuned_thresholds.json")
+    p.add_argument("--skip-full", action="store_true",
+                   help="Skip R1/R2/R4-no-llm full test set (for quick iteration).")
+    p.add_argument("--output", type=str, default="metrics.json",
+                   help="Output filename under results/ (default: metrics.json)")
+    return p.parse_args()
+
+
 def main():
+    args = parse_args()
     from src.routers import keyword_router, embedding_router, hybrid_router
 
     has_api_key = bool(os.getenv("ANTHROPIC_API_KEY"))
+    n_per_agent = max(1, args.llm_n // 8)  # 7 agents + oos = 8 classes
 
-    print("=" * 60)
+    # ── Load tuned thresholds if requested ──
+    kt_no_llm, et_no_llm = 1.5, 0.05
+    kt_with_llm, et_with_llm = 1.5, 0.15
+    threshold_source = "manual defaults"
+    if args.use_tuned_thresholds:
+        tuned_path = RESULTS_DIR / "tuned_thresholds.json"
+        if tuned_path.exists():
+            with open(tuned_path) as f:
+                tuned = json.load(f)
+            kt_no_llm = tuned["no_llm"]["keyword_threshold"]
+            et_no_llm = tuned["no_llm"]["embed_threshold"]
+            kt_with_llm = tuned["with_llm"]["keyword_threshold"]
+            et_with_llm = tuned["with_llm"]["embed_threshold"]
+            threshold_source = f"tuned on val set ({tuned_path.name})"
+        else:
+            print(f"⚠️  {tuned_path} not found — run `python src/tune.py` first. Falling back to defaults.")
+
+    print("=" * 70)
     print("  Hybrid Router Experiment — Full Evaluation")
-    print("=" * 60)
-    print(f"  Test set: {len(TEST_DATA)} queries")
-    print(f"  API key:  {'✅' if has_api_key else '❌ (skipping LLM router)'}")
+    print("=" * 70)
+    print(f"  Test set:       {len(TEST_DATA)} queries")
+    print(f"  LLM sample:     {n_per_agent}/agent × 8 ≈ {n_per_agent*8} queries")
+    print(f"  Seeds:          {args.seeds}")
+    print(f"  SetFit:         {'yes' if args.setfit else 'no'}")
+    print(f"  Thresholds:     {threshold_source}")
+    print(f"                  no-LLM: kt={kt_no_llm}, et={et_no_llm}")
+    print(f"                  with-LLM: kt={kt_with_llm}, et={et_with_llm}")
+    print(f"  API key:        {'✅' if has_api_key else '❌ (skipping LLM)'}")
     print()
 
-    all_results = {}
+    all_results: dict = {"config": {
+        "llm_n": args.llm_n,
+        "n_per_agent": n_per_agent,
+        "seeds": args.seeds,
+        "setfit": args.setfit,
+        "threshold_source": threshold_source,
+        "thresholds_no_llm": {"kt": kt_no_llm, "et": et_no_llm},
+        "thresholds_with_llm": {"kt": kt_with_llm, "et": et_with_llm},
+    }}
 
-    # ── R1: Keyword ──
-    print("[R1] Keyword Router...")
-    t0 = time.time()
-    r1 = evaluate_router(keyword_router.route, TEST_DATA, "R1_keyword")
-    r1["wall_time_sec"] = round(time.time() - t0, 1)
-    r1["cost_usd"] = 0.0
-    all_results["R1_keyword"] = r1
-    print(f"  → {r1['accuracy']*100:.1f}% ({r1['wall_time_sec']}s)\n")
+    # ── R1, R2, R4-no-LLM on full test (deterministic, seed-independent) ──
+    if not args.skip_full:
+        print("[R1] Keyword Router...")
+        t0 = time.time()
+        r1 = evaluate_router(keyword_router.route, TEST_DATA, "R1_keyword")
+        r1["wall_time_sec"] = round(time.time() - t0, 1)
+        r1["cost_usd"] = 0.0
+        all_results["R1_keyword"] = r1
+        print(f"  → {r1['accuracy']*100:.1f}% ({r1['wall_time_sec']}s)\n")
 
-    # ── R2: Embedding ──
-    print("[R2] Embedding Router (TF-IDF)...")
-    t0 = time.time()
-    r2 = evaluate_router(embedding_router.route, TEST_DATA, "R2_embedding")
-    r2["wall_time_sec"] = round(time.time() - t0, 1)
-    r2["cost_usd"] = 0.0
-    all_results["R2_embedding"] = r2
-    print(f"  → {r2['accuracy']*100:.1f}% ({r2['wall_time_sec']}s)\n")
+        print("[R2] Embedding Router (TF-IDF)...")
+        t0 = time.time()
+        r2 = evaluate_router(embedding_router.route, TEST_DATA, "R2_embedding")
+        r2["wall_time_sec"] = round(time.time() - t0, 1)
+        r2["cost_usd"] = 0.0
+        all_results["R2_embedding"] = r2
+        print(f"  → {r2['accuracy']*100:.1f}% ({r2['wall_time_sec']}s)\n")
 
-    # ── R4: Hybrid (no LLM) ──
-    print("[R4] Hybrid Router (keyword → embedding, no LLM fallback)...")
-    hybrid_router.reset_stats()
-    t0 = time.time()
+        print(f"[R4] Hybrid Router (no LLM, kt={kt_no_llm}, et={et_no_llm})...")
+        hybrid_router.reset_stats()
+        t0 = time.time()
 
-    def hybrid_no_llm(query):
-        return hybrid_router.route(query, keyword_threshold=1.5, embed_threshold=0.05, use_llm_fallback=False)
+        def hybrid_no_llm(q):
+            return hybrid_router.route(q, keyword_threshold=kt_no_llm,
+                                       embed_threshold=et_no_llm, use_llm_fallback=False)
 
-    r4 = evaluate_router(hybrid_no_llm, TEST_DATA, "R4_hybrid_no_llm")
-    r4["wall_time_sec"] = round(time.time() - t0, 1)
-    r4["cost_usd"] = 0.0
-    r4["hybrid_stats"] = hybrid_router.get_stats()
-    all_results["R4_hybrid_no_llm"] = r4
-    print(f"  → {r4['accuracy']*100:.1f}% ({r4['wall_time_sec']}s)")
-    hs = r4["hybrid_stats"]
-    print(f"    Keyword accepted: {hs['keyword_accepted']}/{hs['total_queries']} ({hs['keyword_accepted']/hs['total_queries']*100:.1f}%)")
-    print(f"    Embedding fallback: {hs['embedding_accepted']}/{hs['total_queries']} ({hs['embedding_accepted']/hs['total_queries']*100:.1f}%)\n")
+        r4 = evaluate_router(hybrid_no_llm, TEST_DATA, "R4_hybrid_no_llm")
+        r4["wall_time_sec"] = round(time.time() - t0, 1)
+        r4["cost_usd"] = 0.0
+        r4["hybrid_stats"] = hybrid_router.get_stats()
+        all_results["R4_hybrid_no_llm"] = r4
+        print(f"  → {r4['accuracy']*100:.1f}% ({r4['wall_time_sec']}s)\n")
 
-    # ── R3: LLM (stratified sample) ──
+    # ── SetFit baseline on full test ──
+    if args.setfit:
+        try:
+            from src.routers import setfit_router
+            print("[SetFit] Loading model + evaluating on full test set...")
+            t0 = time.time()
+            rs = evaluate_router(setfit_router.route, TEST_DATA, "SetFit_baseline")
+            rs["wall_time_sec"] = round(time.time() - t0, 1)
+            rs["cost_usd"] = 0.0
+            all_results["SetFit_baseline"] = rs
+            print(f"  → {rs['accuracy']*100:.1f}% ({rs['wall_time_sec']}s)\n")
+        except Exception as e:
+            print(f"⚠️  SetFit failed: {e}")
+
+    # ── R3, R4+LLM, McNemar — per seed ──
     if has_api_key:
         from src.routers import llm_router
+        seed_results = {"R3_llm": [], "R4_hybrid_with_llm": [], "mcnemar_r4llm_vs_r3": []}
 
-        llm_sample = stratified_sample(TEST_DATA, n_per_agent=20, seed=42)
-        print(f"[R3] LLM Router (Haiku, stratified sample: {len(llm_sample)} queries)...")
-        llm_router.reset_stats()
-        t0 = time.time()
-        r3 = evaluate_router(llm_router.route, llm_sample, "R3_llm")
-        r3["wall_time_sec"] = round(time.time() - t0, 1)
+        for seed in args.seeds:
+            sample = stratified_sample(TEST_DATA, n_per_agent=n_per_agent, seed=seed)
+            print(f"\n─── Seed {seed} (n={len(sample)}) ───")
 
-        stats = llm_router.get_stats()
-        # Haiku pricing: $0.80/M input, $4/M output
-        cost = (stats["total_input_tokens"] * 0.80 + stats["total_output_tokens"] * 4.0) / 1_000_000
-        r3["cost_usd"] = round(cost, 4)
-        r3["llm_stats"] = stats
-        r3["sample_size"] = len(llm_sample)
-        r3["note"] = "Evaluated on stratified sample (50/agent), not full test set"
-        all_results["R3_llm"] = r3
-        print(f"  → {r3['accuracy']*100:.1f}% ({r3['wall_time_sec']}s)")
-        print(f"    Cost: ${r3['cost_usd']:.4f} ({stats['total_input_tokens']} in + {stats['total_output_tokens']} out tokens)")
-        print(f"    Avg latency: {r3['avg_latency_ms']}ms/query\n")
+            print(f"[R3] LLM Router (Haiku)...")
+            llm_router.reset_stats()
+            t0 = time.time()
+            r3 = evaluate_router(llm_router.route, sample, f"R3_llm_seed{seed}")
+            r3["wall_time_sec"] = round(time.time() - t0, 1)
+            stats = llm_router.get_stats()
+            r3["cost_usd"] = round((stats["total_input_tokens"] * 0.80
+                                    + stats["total_output_tokens"] * 4.0) / 1_000_000, 4)
+            r3["seed"] = seed
+            r3["sample_size"] = len(sample)
+            seed_results["R3_llm"].append(r3)
+            print(f"  → {r3['accuracy']*100:.1f}%  cost=${r3['cost_usd']:.4f}")
 
-        # ── R4+LLM: Hybrid with LLM fallback (on same sample) ──
-        print(f"[R4+LLM] Hybrid Router with LLM fallback (same sample: {len(llm_sample)} queries)...")
-        hybrid_router.reset_stats()
-        llm_router.reset_stats()
+            print(f"[R4+LLM] Hybrid with LLM fallback (kt={kt_with_llm}, et={et_with_llm})...")
+            hybrid_router.reset_stats()
+            llm_router.reset_stats()
+            t0 = time.time()
 
-        def hybrid_with_llm(query):
-            return hybrid_router.route(query, keyword_threshold=1.5, embed_threshold=0.15, use_llm_fallback=True)
+            def hybrid_with_llm(q):
+                return hybrid_router.route(q, keyword_threshold=kt_with_llm,
+                                           embed_threshold=et_with_llm, use_llm_fallback=True)
 
-        r4llm = evaluate_router(hybrid_with_llm, llm_sample, "R4_hybrid_with_llm")
-        r4llm["wall_time_sec"] = round(time.time() - t0, 1)
+            r4llm = evaluate_router(hybrid_with_llm, sample, f"R4_hybrid_with_llm_seed{seed}")
+            r4llm["wall_time_sec"] = round(time.time() - t0, 1)
+            stats2 = llm_router.get_stats()
+            r4llm["cost_usd"] = round((stats2["total_input_tokens"] * 0.80
+                                       + stats2["total_output_tokens"] * 4.0) / 1_000_000, 4)
+            r4llm["hybrid_stats"] = hybrid_router.get_stats()
+            r4llm["seed"] = seed
+            r4llm["sample_size"] = len(sample)
+            seed_results["R4_hybrid_with_llm"].append(r4llm)
+            print(f"  → {r4llm['accuracy']*100:.1f}%  cost=${r4llm['cost_usd']:.4f}  "
+                  f"LLM calls={r4llm['hybrid_stats']['llm_fallback']}/{len(sample)}")
 
-        llm_stats = llm_router.get_stats()
-        cost_llm = (llm_stats["total_input_tokens"] * 0.80 + llm_stats["total_output_tokens"] * 4.0) / 1_000_000
-        r4llm["cost_usd"] = round(cost_llm, 4)
-        r4llm["hybrid_stats"] = hybrid_router.get_stats()
-        r4llm["llm_stats"] = llm_stats
-        r4llm["sample_size"] = len(llm_sample)
-        all_results["R4_hybrid_with_llm"] = r4llm
-        hs2 = r4llm["hybrid_stats"]
-        print(f"  → {r4llm['accuracy']*100:.1f}%")
-        print(f"    Keyword accepted: {hs2['keyword_accepted']}/{hs2['total_queries']} ({hs2['keyword_accepted']/hs2['total_queries']*100:.1f}%)")
-        print(f"    Embedding accepted: {hs2['embedding_accepted']}/{hs2['total_queries']} ({hs2['embedding_accepted']/hs2['total_queries']*100:.1f}%)")
-        print(f"    LLM fallback: {hs2['llm_fallback']}/{hs2['total_queries']} ({hs2['llm_fallback']/hs2['total_queries']*100:.1f}%)")
-        print(f"    LLM cost: ${r4llm['cost_usd']:.4f}\n")
+            # McNemar: R4+LLM vs R3 on same sample
+            from src.stats import mcnemar_test
+            mc = mcnemar_test(r3["correct_flags"], r4llm["correct_flags"])
+            mc["seed"] = seed
+            seed_results["mcnemar_r4llm_vs_r3"].append(mc)
+            print(f"  McNemar (R4+LLM vs R3): p={mc['p_value']:.4f}  "
+                  f"significant={mc['significant_at_0.05']}  "
+                  f"delta={mc['delta']*100:+.1f}pp")
 
-    # ── Summary Table ──
-    print("=" * 60)
+        all_results["seed_results"] = seed_results
+
+        # ── Aggregate ──
+        from src.stats import aggregate_seeds, wilson_ci
+        r3_accs = [r["accuracy"] for r in seed_results["R3_llm"]]
+        r4llm_accs = [r["accuracy"] for r in seed_results["R4_hybrid_with_llm"]]
+        r3_costs = [r["cost_usd"] for r in seed_results["R3_llm"]]
+        r4llm_costs = [r["cost_usd"] for r in seed_results["R4_hybrid_with_llm"]]
+
+        all_results["aggregated"] = {
+            "R3_llm": {
+                "accuracy": aggregate_seeds(r3_accs),
+                "cost_usd": aggregate_seeds(r3_costs),
+            },
+            "R4_hybrid_with_llm": {
+                "accuracy": aggregate_seeds(r4llm_accs),
+                "cost_usd": aggregate_seeds(r4llm_costs),
+            },
+            "wilson_ci_R3": wilson_ci(seed_results["R3_llm"][0]["correct"],
+                                      seed_results["R3_llm"][0]["total"]),
+            "wilson_ci_R4LLM": wilson_ci(seed_results["R4_hybrid_with_llm"][0]["correct"],
+                                          seed_results["R4_hybrid_with_llm"][0]["total"]),
+            "mcnemar_significant_count": sum(
+                1 for m in seed_results["mcnemar_r4llm_vs_r3"] if m["significant_at_0.05"]
+            ),
+            "n_seeds": len(args.seeds),
+        }
+
+    # ── Summary ──
+    print("\n" + "=" * 70)
     print("  Summary")
-    print("=" * 60)
-    print(f"  {'Router':<25s} {'Accuracy':>10s} {'Cost':>10s} {'LLM calls':>10s} {'Note':>15s}")
-    print("  " + "-" * 72)
-    for name, r in all_results.items():
-        note = f"n={r.get('sample_size', r['total'])}"
-        llm_info = f"{r.get('llm_call_rate', 0)*100:.0f}%" if r.get('llm_call_rate', 0) > 0 else "0%"
-        print(f"  {name:<25s} {r['accuracy']*100:>9.1f}% ${r['cost_usd']:>8.4f} {llm_info:>10s} {note:>15s}")
+    print("=" * 70)
+    if "R1_keyword" in all_results:
+        for key in ["R1_keyword", "R2_embedding", "R4_hybrid_no_llm", "SetFit_baseline"]:
+            if key in all_results:
+                r = all_results[key]
+                print(f"  {key:<25s} acc={r['accuracy']*100:>5.1f}%  (n={r['total']})")
+    if "aggregated" in all_results:
+        ag = all_results["aggregated"]
+        print(f"  R3_llm (multi-seed)        acc={ag['R3_llm']['accuracy']['mean']*100:.1f}% "
+              f"± {ag['R3_llm']['accuracy']['std']*100:.1f}pp  "
+              f"(n_seeds={ag['n_seeds']})")
+        print(f"  R4_hybrid_with_llm (ms)    acc={ag['R4_hybrid_with_llm']['accuracy']['mean']*100:.1f}% "
+              f"± {ag['R4_hybrid_with_llm']['accuracy']['std']*100:.1f}pp")
+        print(f"  McNemar significant in {ag['mcnemar_significant_count']}/{ag['n_seeds']} seeds")
 
     # ── Save ──
-    out_path = RESULTS_DIR / "metrics.json"
+    # Strip correct_flags to keep file small (save separately)
+    import copy
+    to_save = copy.deepcopy(all_results)
+    for key in ["R1_keyword", "R2_embedding", "R4_hybrid_no_llm", "SetFit_baseline"]:
+        if key in to_save:
+            to_save[key].pop("correct_flags", None)
+    if "seed_results" in to_save:
+        for rlist in to_save["seed_results"].values():
+            for r in rlist:
+                if isinstance(r, dict):
+                    r.pop("correct_flags", None)
+
+    out_path = RESULTS_DIR / args.output
     with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(all_results, f, ensure_ascii=False, indent=2, default=str)
+        json.dump(to_save, f, ensure_ascii=False, indent=2, default=str)
     print(f"\n  Results saved to: {out_path}")
 
 

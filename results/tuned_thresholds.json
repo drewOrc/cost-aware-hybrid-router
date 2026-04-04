@@ -1,0 +1,524 @@
+{
+  "no_llm": {
+    "keyword_threshold": 1.5,
+    "embed_threshold": 0.05,
+    "val_accuracy": 0.8323,
+    "val_keyword_accept_rate": 0.4655
+  },
+  "with_llm": {
+    "keyword_threshold": 0.5,
+    "embed_threshold": 0.1,
+    "val_expected_accuracy": 0.8848,
+    "val_llm_call_rate": 0.2265,
+    "selection_criterion": "min LLM-call-rate s.t. expected_acc ≥ 0.88"
+  },
+  "grid_no_llm": [
+    {
+      "keyword_threshold": 0.5,
+      "embed_threshold": 0.05,
+      "accuracy": 0.8319,
+      "keyword_accept_rate": 0.6384
+    },
+    {
+      "keyword_threshold": 0.5,
+      "embed_threshold": 0.1,
+      "accuracy": 0.8319,
+      "keyword_accept_rate": 0.6384
+    },
+    {
+      "keyword_threshold": 0.5,
+      "embed_threshold": 0.15,
+      "accuracy": 0.8319,
+      "keyword_accept_rate": 0.6384
+    },
+    {
+      "keyword_threshold": 0.5,
+      "embed_threshold": 0.2,
+      "accuracy": 0.8319,
+      "keyword_accept_rate": 0.6384
+    },
+    {
+      "keyword_threshold": 0.5,
+      "embed_threshold": 0.25,
+      "accuracy": 0.8319,
+      "keyword_accept_rate": 0.6384
+    },
+    {
+      "keyword_threshold": 0.5,
+      "embed_threshold": 0.3,
+      "accuracy": 0.8319,
+      "keyword_accept_rate": 0.6384
+    },
+    {
+      "keyword_threshold": 1.0,
+      "embed_threshold": 0.05,
+      "accuracy": 0.8297,
+      "keyword_accept_rate": 0.5858
+    },
+    {
+      "keyword_threshold": 1.0,
+      "embed_threshold": 0.1,
+      "accuracy": 0.8297,
+      "keyword_accept_rate": 0.5858
+    },
+    {
+      "keyword_threshold": 1.0,
+      "embed_threshold": 0.15,
+      "accuracy": 0.8297,
+      "keyword_accept_rate": 0.5858
+    },
+    {
+      "keyword_threshold": 1.0,
+      "embed_threshold": 0.2,
+      "accuracy": 0.8297,
+      "keyword_accept_rate": 0.5858
+    },
+    {
+      "keyword_threshold": 1.0,
+      "embed_threshold": 0.25,
+      "accuracy": 0.8297,
+      "keyword_accept_rate": 0.5858
+    },
+    {
+      "keyword_threshold": 1.0,
+      "embed_threshold": 0.3,
+      "accuracy": 0.8297,
+      "keyword_accept_rate": 0.5858
+    },
+    {
+      "keyword_threshold": 1.5,
+      "embed_threshold": 0.05,
+      "accuracy": 0.8323,
+      "keyword_accept_rate": 0.4655
+    },
+    {
+      "keyword_threshold": 1.5,
+      "embed_threshold": 0.1,
+      "accuracy": 0.8323,
+      "keyword_accept_rate": 0.4655
+    },
+    {
+      "keyword_threshold": 1.5,
+      "embed_threshold": 0.15,
+      "accuracy": 0.8323,
+      "keyword_accept_rate": 0.4655
+    },
+    {
+      "keyword_threshold": 1.5,
+      "embed_threshold": 0.2,
+      "accuracy": 0.8323,
+      "keyword_accept_rate": 0.4655
+    },
+    {
+      "keyword_threshold": 1.5,
+      "embed_threshold": 0.25,
+      "accuracy": 0.8323,
+      "keyword_accept_rate": 0.4655
+    },
+    {
+      "keyword_threshold": 1.5,
+      "embed_threshold": 0.3,
+      "accuracy": 0.8323,
+      "keyword_accept_rate": 0.4655
+    },
+    {
+      "keyword_threshold": 2.0,
+      "embed_threshold": 0.05,
+      "accuracy": 0.8235,
+      "keyword_accept_rate": 0.229
+    },
+    {
+      "keyword_threshold": 2.0,
+      "embed_threshold": 0.1,
+      "accuracy": 0.8235,
+      "keyword_accept_rate": 0.229
+    },
+    {
+      "keyword_threshold": 2.0,
+      "embed_threshold": 0.15,
+      "accuracy": 0.8235,
+      "keyword_accept_rate": 0.229
+    },
+    {
+      "keyword_threshold": 2.0,
+      "embed_threshold": 0.2,
+      "accuracy": 0.8235,
+      "keyword_accept_rate": 0.229
+    },
+    {
+      "keyword_threshold": 2.0,
+      "embed_threshold": 0.25,
+      "accuracy": 0.8235,
+      "keyword_accept_rate": 0.229
+    },
+    {
+      "keyword_threshold": 2.0,
+      "embed_threshold": 0.3,
+      "accuracy": 0.8235,
+      "keyword_accept_rate": 0.229
+    },
+    {
+      "keyword_threshold": 2.5,
+      "embed_threshold": 0.05,
+      "accuracy": 0.8155,
+      "keyword_accept_rate": 0.1271
+    },
+    {
+      "keyword_threshold": 2.5,
+      "embed_threshold": 0.1,
+      "accuracy": 0.8155,
+      "keyword_accept_rate": 0.1271
+    },
+    {
+      "keyword_threshold": 2.5,
+      "embed_threshold": 0.15,
+      "accuracy": 0.8155,
+      "keyword_accept_rate": 0.1271
+    },
+    {
+      "keyword_threshold": 2.5,
+      "embed_threshold": 0.2,
+      "accuracy": 0.8155,
+      "keyword_accept_rate": 0.1271
+    },
+    {
+      "keyword_threshold": 2.5,
+      "embed_threshold": 0.25,
+      "accuracy": 0.8155,
+      "keyword_accept_rate": 0.1271
+    },
+    {
+      "keyword_threshold": 2.5,
+      "embed_threshold": 0.3,
+      "accuracy": 0.8155,
+      "keyword_accept_rate": 0.1271
+    },
+    {
+      "keyword_threshold": 3.0,
+      "embed_threshold": 0.05,
+      "accuracy": 0.8155,
+      "keyword_accept_rate": 0.0706
+    },
+    {
+      "keyword_threshold": 3.0,
+      "embed_threshold": 0.1,
+      "accuracy": 0.8155,
+      "keyword_accept_rate": 0.0706
+    },
+    {
+      "keyword_threshold": 3.0,
+      "embed_threshold": 0.15,
+      "accuracy": 0.8155,
+      "keyword_accept_rate": 0.0706
+    },
+    {
+      "keyword_threshold": 3.0,
+      "embed_threshold": 0.2,
+      "accuracy": 0.8155,
+      "keyword_accept_rate": 0.0706
+    },
+    {
+      "keyword_threshold": 3.0,
+      "embed_threshold": 0.25,
+      "accuracy": 0.8155,
+      "keyword_accept_rate": 0.0706
+    },
+    {
+      "keyword_threshold": 3.0,
+      "embed_threshold": 0.3,
+      "accuracy": 0.8155,
+      "keyword_accept_rate": 0.0706
+    },
+    {
+      "keyword_threshold": 3.5,
+      "embed_threshold": 0.05,
+      "accuracy": 0.8148,
+      "keyword_accept_rate": 0.0442
+    },
+    {
+      "keyword_threshold": 3.5,
+      "embed_threshold": 0.1,
+      "accuracy": 0.8148,
+      "keyword_accept_rate": 0.0442
+    },
+    {
+      "keyword_threshold": 3.5,
+      "embed_threshold": 0.15,
+      "accuracy": 0.8148,
+      "keyword_accept_rate": 0.0442
+    },
+    {
+      "keyword_threshold": 3.5,
+      "embed_threshold": 0.2,
+      "accuracy": 0.8148,
+      "keyword_accept_rate": 0.0442
+    },
+    {
+      "keyword_threshold": 3.5,
+      "embed_threshold": 0.25,
+      "accuracy": 0.8148,
+      "keyword_accept_rate": 0.0442
+    },
+    {
+      "keyword_threshold": 3.5,
+      "embed_threshold": 0.3,
+      "accuracy": 0.8148,
+      "keyword_accept_rate": 0.0442
+    }
+  ],
+  "grid_with_llm": [
+    {
+      "keyword_threshold": 0.5,
+      "embed_threshold": 0.05,
+      "expected_accuracy": 0.8715,
+      "llm_call_rate": 0.1148
+    },
+    {
+      "keyword_threshold": 0.5,
+      "embed_threshold": 0.1,
+      "expected_accuracy": 0.8848,
+      "llm_call_rate": 0.2265
+    },
+    {
+      "keyword_threshold": 0.5,
+      "embed_threshold": 0.15,
+      "expected_accuracy": 0.8929,
+      "llm_call_rate": 0.291
+    },
+    {
+      "keyword_threshold": 0.5,
+      "embed_threshold": 0.2,
+      "expected_accuracy": 0.8912,
+      "llm_call_rate": 0.3213
+    },
+    {
+      "keyword_threshold": 0.5,
+      "embed_threshold": 0.25,
+      "expected_accuracy": 0.8906,
+      "llm_call_rate": 0.3455
+    },
+    {
+      "keyword_threshold": 0.5,
+      "embed_threshold": 0.3,
+      "expected_accuracy": 0.8908,
+      "llm_call_rate": 0.351
+    },
+    {
+      "keyword_threshold": 1.0,
+      "embed_threshold": 0.05,
+      "expected_accuracy": 0.8704,
+      "llm_call_rate": 0.1206
+    },
+    {
+      "keyword_threshold": 1.0,
+      "embed_threshold": 0.1,
+      "expected_accuracy": 0.8875,
+      "llm_call_rate": 0.2529
+    },
+    {
+      "keyword_threshold": 1.0,
+      "embed_threshold": 0.15,
+      "expected_accuracy": 0.8968,
+      "llm_call_rate": 0.3316
+    },
+    {
+      "keyword_threshold": 1.0,
+      "embed_threshold": 0.2,
+      "expected_accuracy": 0.8941,
+      "llm_call_rate": 0.37
+    },
+    {
+      "keyword_threshold": 1.0,
+      "embed_threshold": 0.25,
+      "expected_accuracy": 0.894,
+      "llm_call_rate": 0.3977
+    },
+    {
+      "keyword_threshold": 1.0,
+      "embed_threshold": 0.3,
+      "expected_accuracy": 0.8942,
+      "llm_call_rate": 0.4032
+    },
+    {
+      "keyword_threshold": 1.5,
+      "embed_threshold": 0.05,
+      "expected_accuracy": 0.8784,
+      "llm_call_rate": 0.139
+    },
+    {
+      "keyword_threshold": 1.5,
+      "embed_threshold": 0.1,
+      "expected_accuracy": 0.8989,
+      "llm_call_rate": 0.2945
+    },
+    {
+      "keyword_threshold": 1.5,
+      "embed_threshold": 0.15,
+      "expected_accuracy": 0.9087,
+      "llm_call_rate": 0.4123
+    },
+    {
+      "keyword_threshold": 1.5,
+      "embed_threshold": 0.2,
+      "expected_accuracy": 0.9033,
+      "llm_call_rate": 0.479
+    },
+    {
+      "keyword_threshold": 1.5,
+      "embed_threshold": 0.25,
+      "expected_accuracy": 0.9031,
+      "llm_call_rate": 0.5135
+    },
+    {
+      "keyword_threshold": 1.5,
+      "embed_threshold": 0.3,
+      "expected_accuracy": 0.9032,
+      "llm_call_rate": 0.5197
+    },
+    {
+      "keyword_threshold": 2.0,
+      "embed_threshold": 0.05,
+      "expected_accuracy": 0.8705,
+      "llm_call_rate": 0.151
+    },
+    {
+      "keyword_threshold": 2.0,
+      "embed_threshold": 0.1,
+      "expected_accuracy": 0.8884,
+      "llm_call_rate": 0.3626
+    },
+    {
+      "keyword_threshold": 2.0,
+      "embed_threshold": 0.15,
+      "expected_accuracy": 0.8953,
+      "llm_call_rate": 0.5545
+    },
+    {
+      "keyword_threshold": 2.0,
+      "embed_threshold": 0.2,
+      "expected_accuracy": 0.8837,
+      "llm_call_rate": 0.6842
+    },
+    {
+      "keyword_threshold": 2.0,
+      "embed_threshold": 0.25,
+      "expected_accuracy": 0.8814,
+      "llm_call_rate": 0.7406
+    },
+    {
+      "keyword_threshold": 2.0,
+      "embed_threshold": 0.3,
+      "expected_accuracy": 0.8809,
+      "llm_call_rate": 0.7532
+    },
+    {
+      "keyword_threshold": 2.5,
+      "embed_threshold": 0.05,
+      "expected_accuracy": 0.8645,
+      "llm_call_rate": 0.1571
+    },
+    {
+      "keyword_threshold": 2.5,
+      "embed_threshold": 0.1,
+      "expected_accuracy": 0.883,
+      "llm_call_rate": 0.3826
+    },
+    {
+      "keyword_threshold": 2.5,
+      "embed_threshold": 0.15,
+      "expected_accuracy": 0.8902,
+      "llm_call_rate": 0.5965
+    },
+    {
+      "keyword_threshold": 2.5,
+      "embed_threshold": 0.2,
+      "expected_accuracy": 0.8761,
+      "llm_call_rate": 0.7506
+    },
+    {
+      "keyword_threshold": 2.5,
+      "embed_threshold": 0.25,
+      "expected_accuracy": 0.8728,
+      "llm_call_rate": 0.8187
+    },
+    {
+      "keyword_threshold": 2.5,
+      "embed_threshold": 0.3,
+      "expected_accuracy": 0.8712,
+      "llm_call_rate": 0.8384
+    },
+    {
+      "keyword_threshold": 3.0,
+      "embed_threshold": 0.05,
+      "expected_accuracy": 0.8644,
+      "llm_call_rate": 0.1574
+    },
+    {
+      "keyword_threshold": 3.0,
+      "embed_threshold": 0.1,
+      "expected_accuracy": 0.8825,
+      "llm_call_rate": 0.3858
+    },
+    {
+      "keyword_threshold": 3.0,
+      "embed_threshold": 0.15,
+      "expected_accuracy": 0.8883,
+      "llm_call_rate": 0.6123
+    },
+    {
+      "keyword_threshold": 3.0,
+      "embed_threshold": 0.2,
+      "expected_accuracy": 0.8719,
+      "llm_call_rate": 0.7823
+    },
+    {
+      "keyword_threshold": 3.0,
+      "embed_threshold": 0.25,
+      "expected_accuracy": 0.8692,
+      "llm_call_rate": 0.8613
+    },
+    {
+      "keyword_threshold": 3.0,
+      "embed_threshold": 0.3,
+      "expected_accuracy": 0.868,
+      "llm_call_rate": 0.8874
+    },
+    {
+      "keyword_threshold": 3.5,
+      "embed_threshold": 0.05,
+      "expected_accuracy": 0.8638,
+      "llm_call_rate": 0.1574
+    },
+    {
+      "keyword_threshold": 3.5,
+      "embed_threshold": 0.1,
+      "expected_accuracy": 0.8819,
+      "llm_call_rate": 0.3877
+    },
+    {
+      "keyword_threshold": 3.5,
+      "embed_threshold": 0.15,
+      "expected_accuracy": 0.887,
+      "llm_call_rate": 0.6213
+    },
+    {
+      "keyword_threshold": 3.5,
+      "embed_threshold": 0.2,
+      "expected_accuracy": 0.8694,
+      "llm_call_rate": 0.7994
+    },
+    {
+      "keyword_threshold": 3.5,
+      "embed_threshold": 0.25,
+      "expected_accuracy": 0.8672,
+      "llm_call_rate": 0.8819
+    },
+    {
+      "keyword_threshold": 3.5,
+      "embed_threshold": 0.3,
+      "expected_accuracy": 0.8653,
+      "llm_call_rate": 0.9129
+    }
+  ],
+  "note": "Thresholds selected on validation.json (3,100 queries), NOT on test set. p_llm_correct=0.856 estimated from R3 sample."
+}

@@ -1,0 +1,1452 @@
+{
+  "config": {
+    "llm_n_per_seed": 400,
+    "n_per_agent": 50,
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "n_seeds": 3,
+    "workers": 6,
+    "thresholds_with_llm": {
+      "kt": 0.5,
+      "et": 0.1
+    },
+    "thresholds_source": "tuned on val set (tuned_thresholds.json)",
+    "thresholds_no_llm": {
+      "kt": 1.5,
+      "et": 0.05
+    }
+  },
+  "R1_keyword": {
+    "router": "R1_keyword",
+    "total": 5500,
+    "correct": 3562,
+    "accuracy": 0.6476,
+    "per_agent": {
+      "auto_agent": {
+        "total": 450,
+        "correct": 356,
+        "accuracy": 0.7911
+      },
+      "device_agent": {
+        "total": 480,
+        "correct": 147,
+        "accuracy": 0.3063
+      },
+      "finance_agent": {
+        "total": 1140,
+        "correct": 953,
+        "accuracy": 0.836
+      },
+      "kitchen_agent": {
+        "total": 360,
+        "correct": 193,
+        "accuracy": 0.5361
+      },
+      "meta_agent": {
+        "total": 660,
+        "correct": 223,
+        "accuracy": 0.3379
+      },
+      "oos": {
+        "total": 1000,
+        "correct": 800,
+        "accuracy": 0.8
+      },
+      "productivity_agent": {
+        "total": 960,
+        "correct": 591,
+        "accuracy": 0.6156
+      },
+      "travel_agent": {
+        "total": 450,
+        "correct": 299,
+        "accuracy": 0.6644
+      }
+    },
+    "top_confusion": [
+      {
+        "true": "meta_agent",
+        "predicted": "oos",
+        "count": 405
+      },
+      {
+        "true": "productivity_agent",
+        "predicted": "oos",
+        "count": 311
+      },
+      {
+        "true": "device_agent",
+        "predicted": "oos",
+        "count": 290
+      },
+      {
+        "true": "kitchen_agent",
+        "predicted": "oos",
+        "count": 142
+      },
+      {
+        "true": "finance_agent",
+        "predicted": "oos",
+        "count": 128
+      },
+      {
+        "true": "travel_agent",
+        "predicted": "oos",
+        "count": 109
+      },
+      {
+        "true": "oos",
+        "predicted": "productivity_agent",
+        "count": 70
+      },
+      {
+        "true": "auto_agent",
+        "predicted": "oos",
+        "count": 65
+      },
+      {
+        "true": "oos",
+        "predicted": "finance_agent",
+        "count": 62
+      },
+      {
+        "true": "device_agent",
+        "predicted": "productivity_agent",
+        "count": 36
+      },
+      {
+        "true": "finance_agent",
+        "predicted": "travel_agent",
+        "count": 33
+      },
+      {
+        "true": "oos",
+        "predicted": "auto_agent",
+        "count": 32
+      },
+      {
+        "true": "meta_agent",
+        "predicted": "productivity_agent",
+        "count": 30
+      },
+      {
+        "true": "productivity_agent",
+        "predicted": "finance_agent",
+        "count": 30
+      },
+      {
+        "true": "travel_agent",
+        "predicted": "finance_agent",
+        "count": 25
+      }
+    ],
+    "avg_latency_ms": 0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "stages": {},
+    "wall_time_sec": 15.0,
+    "cost_usd": 0.0
+  },
+  "R2_embedding": {
+    "router": "R2_embedding",
+    "total": 5500,
+    "correct": 4070,
+    "accuracy": 0.74,
+    "per_agent": {
+      "auto_agent": {
+        "total": 450,
+        "correct": 417,
+        "accuracy": 0.9267
+      },
+      "device_agent": {
+        "total": 480,
+        "correct": 401,
+        "accuracy": 0.8354
+      },
+      "finance_agent": {
+        "total": 1140,
+        "correct": 999,
+        "accuracy": 0.8763
+      },
+      "kitchen_agent": {
+        "total": 360,
+        "correct": 317,
+        "accuracy": 0.8806
+      },
+      "meta_agent": {
+        "total": 660,
+        "correct": 525,
+        "accuracy": 0.7955
+      },
+      "oos": {
+        "total": 1000,
+        "correct": 264,
+        "accuracy": 0.264
+      },
+      "productivity_agent": {
+        "total": 960,
+        "correct": 733,
+        "accuracy": 0.7635
+      },
+      "travel_agent": {
+        "total": 450,
+        "correct": 414,
+        "accuracy": 0.92
+      }
+    },
+    "top_confusion": [
+      {
+        "true": "oos",
+        "predicted": "auto_agent",
+        "count": 150
+      },
+      {
+        "true": "oos",
+        "predicted": "productivity_agent",
+        "count": 139
+      },
+      {
+        "true": "oos",
+        "predicted": "meta_agent",
+        "count": 113
+      },
+      {
+        "true": "oos",
+        "predicted": "kitchen_agent",
+        "count": 105
+      },
+      {
+        "true": "oos",
+        "predicted": "device_agent",
+        "count": 80
+      },
+      {
+        "true": "oos",
+        "predicted": "finance_agent",
+        "count": 80
+      },
+      {
+        "true": "oos",
+        "predicted": "travel_agent",
+        "count": 69
+      },
+      {
+        "true": "productivity_agent",
+        "predicted": "meta_agent",
+        "count": 64
+      },
+      {
+        "true": "productivity_agent",
+        "predicted": "kitchen_agent",
+        "count": 54
+      },
+      {
+        "true": "meta_agent",
+        "predicted": "auto_agent",
+        "count": 45
+      },
+      {
+        "true": "productivity_agent",
+        "predicted": "finance_agent",
+        "count": 30
+      },
+      {
+        "true": "finance_agent",
+        "predicted": "meta_agent",
+        "count": 28
+      },
+      {
+        "true": "productivity_agent",
+        "predicted": "travel_agent",
+        "count": 26
+      },
+      {
+        "true": "productivity_agent",
+        "predicted": "oos",
+        "count": 25
+      },
+      {
+        "true": "finance_agent",
+        "predicted": "productivity_agent",
+        "count": 25
+      }
+    ],
+    "avg_latency_ms": 0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "stages": {},
+    "wall_time_sec": 1.7,
+    "cost_usd": 0.0
+  },
+  "R4_hybrid_no_llm": {
+    "router": "R4_hybrid_no_llm",
+    "total": 5500,
+    "correct": 4118,
+    "accuracy": 0.7487,
+    "per_agent": {
+      "auto_agent": {
+        "total": 450,
+        "correct": 420,
+        "accuracy": 0.9333
+      },
+      "device_agent": {
+        "total": 480,
+        "correct": 398,
+        "accuracy": 0.8292
+      },
+      "finance_agent": {
+        "total": 1140,
+        "correct": 1014,
+        "accuracy": 0.8895
+      },
+      "kitchen_agent": {
+        "total": 360,
+        "correct": 317,
+        "accuracy": 0.8806
+      },
+      "meta_agent": {
+        "total": 660,
+        "correct": 527,
+        "accuracy": 0.7985
+      },
+      "oos": {
+        "total": 1000,
+        "correct": 262,
+        "accuracy": 0.262
+      },
+      "productivity_agent": {
+        "total": 960,
+        "correct": 764,
+        "accuracy": 0.7958
+      },
+      "travel_agent": {
+        "total": 450,
+        "correct": 416,
+        "accuracy": 0.9244
+      }
+    },
+    "top_confusion": [
+      {
+        "true": "oos",
+        "predicted": "auto_agent",
+        "count": 149
+      },
+      {
+        "true": "oos",
+        "predicted": "productivity_agent",
+        "count": 141
+      },
+      {
+        "true": "oos",
+        "predicted": "meta_agent",
+        "count": 113
+      },
+      {
+        "true": "oos",
+        "predicted": "kitchen_agent",
+        "count": 102
+      },
+      {
+        "true": "oos",
+        "predicted": "finance_agent",
+        "count": 85
+      },
+      {
+        "true": "oos",
+        "predicted": "device_agent",
+        "count": 80
+      },
+      {
+        "true": "oos",
+        "predicted": "travel_agent",
+        "count": 68
+      },
+      {
+        "true": "productivity_agent",
+        "predicted": "meta_agent",
+        "count": 59
+      },
+      {
+        "true": "meta_agent",
+        "predicted": "auto_agent",
+        "count": 42
+      },
+      {
+        "true": "finance_agent",
+        "predicted": "travel_agent",
+        "count": 40
+      },
+      {
+        "true": "productivity_agent",
+        "predicted": "kitchen_agent",
+        "count": 31
+      },
+      {
+        "true": "meta_agent",
+        "predicted": "productivity_agent",
+        "count": 29
+      },
+      {
+        "true": "productivity_agent",
+        "predicted": "finance_agent",
+        "count": 28
+      },
+      {
+        "true": "productivity_agent",
+        "predicted": "oos",
+        "count": 25
+      },
+      {
+        "true": "productivity_agent",
+        "predicted": "travel_agent",
+        "count": 25
+      }
+    ],
+    "avg_latency_ms": 0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "stages": {
+      "embedding": 2329,
+      "embedding_low_conf": 889,
+      "keyword": 2282
+    },
+    "wall_time_sec": 16.3,
+    "cost_usd": 0.0,
+    "hybrid_stats": {
+      "total_queries": 5500,
+      "keyword_accepted": 2282,
+      "embedding_accepted": 3218,
+      "llm_fallback": 0
+    }
+  },
+  "SetFit_baseline": {
+    "router": "SetFit_baseline",
+    "total": 5500,
+    "correct": 3862,
+    "accuracy": 0.7022,
+    "per_agent": {
+      "auto_agent": {
+        "total": 450,
+        "correct": 390,
+        "accuracy": 0.8667
+      },
+      "device_agent": {
+        "total": 480,
+        "correct": 390,
+        "accuracy": 0.8125
+      },
+      "finance_agent": {
+        "total": 1140,
+        "correct": 994,
+        "accuracy": 0.8719
+      },
+      "kitchen_agent": {
+        "total": 360,
+        "correct": 318,
+        "accuracy": 0.8833
+      },
+      "meta_agent": {
+        "total": 660,
+        "correct": 495,
+        "accuracy": 0.75
+      },
+      "oos": {
+        "total": 1000,
+        "correct": 393,
+        "accuracy": 0.393
+      },
+      "productivity_agent": {
+        "total": 960,
+        "correct": 518,
+        "accuracy": 0.5396
+      },
+      "travel_agent": {
+        "total": 450,
+        "correct": 364,
+        "accuracy": 0.8089
+      }
+    },
+    "top_confusion": [
+      {
+        "true": "oos",
+        "predicted": "device_agent",
+        "count": 129
+      },
+      {
+        "true": "productivity_agent",
+        "predicted": "oos",
+        "count": 118
+      },
+      {
+        "true": "oos",
+        "predicted": "finance_agent",
+        "count": 115
+      },
+      {
+        "true": "oos",
+        "predicted": "kitchen_agent",
+        "count": 108
+      },
+      {
+        "true": "oos",
+        "predicted": "auto_agent",
+        "count": 101
+      },
+      {
+        "true": "productivity_agent",
+        "predicted": "meta_agent",
+        "count": 99
+      },
+      {
+        "true": "meta_agent",
+        "predicted": "oos",
+        "count": 92
+      },
+      {
+        "true": "productivity_agent",
+        "predicted": "device_agent",
+        "count": 87
+      },
+      {
+        "true": "finance_agent",
+        "predicted": "productivity_agent",
+        "count": 73
+      },
+      {
+        "true": "productivity_agent",
+        "predicted": "kitchen_agent",
+        "count": 66
+      },
+      {
+        "true": "oos",
+        "predicted": "productivity_agent",
+        "count": 60
+      },
+      {
+        "true": "meta_agent",
+        "predicted": "device_agent",
+        "count": 55
+      },
+      {
+        "true": "device_agent",
+        "predicted": "meta_agent",
+        "count": 54
+      },
+      {
+        "true": "oos",
+        "predicted": "meta_agent",
+        "count": 47
+      },
+      {
+        "true": "oos",
+        "predicted": "travel_agent",
+        "count": 47
+      }
+    ],
+    "avg_latency_ms": 0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "stages": {},
+    "wall_time_sec": 14.5,
+    "cost_usd": 0.0
+  },
+  "seed_results": {
+    "R3_llm": [
+      {
+        "router": "R3_llm_seed42",
+        "seed": 42,
+        "total": 400,
+        "correct": 334,
+        "accuracy": 0.835,
+        "per_agent": {
+          "auto_agent": {
+            "total": 50,
+            "correct": 46,
+            "accuracy": 0.92
+          },
+          "device_agent": {
+            "total": 50,
+            "correct": 40,
+            "accuracy": 0.8
+          },
+          "finance_agent": {
+            "total": 50,
+            "correct": 48,
+            "accuracy": 0.96
+          },
+          "kitchen_agent": {
+            "total": 50,
+            "correct": 43,
+            "accuracy": 0.86
+          },
+          "meta_agent": {
+            "total": 50,
+            "correct": 46,
+            "accuracy": 0.92
+          },
+          "oos": {
+            "total": 50,
+            "correct": 32,
+            "accuracy": 0.64
+          },
+          "productivity_agent": {
+            "total": 50,
+            "correct": 37,
+            "accuracy": 0.74
+          },
+          "travel_agent": {
+            "total": 50,
+            "correct": 42,
+            "accuracy": 0.84
+          }
+        },
+        "top_confusion": [
+          {
+            "true": "kitchen_agent",
+            "predicted": "productivity_agent",
+            "count": 6
+          },
+          {
+            "true": "productivity_agent",
+            "predicted": "oos",
+            "count": 6
+          },
+          {
+            "true": "device_agent",
+            "predicted": "meta_agent",
+            "count": 4
+          },
+          {
+            "true": "meta_agent",
+            "predicted": "oos",
+            "count": 4
+          },
+          {
+            "true": "oos",
+            "predicted": "auto_agent",
+            "count": 4
+          },
+          {
+            "true": "travel_agent",
+            "predicted": "kitchen_agent",
+            "count": 4
+          },
+          {
+            "true": "auto_agent",
+            "predicted": "travel_agent",
+            "count": 3
+          },
+          {
+            "true": "device_agent",
+            "predicted": "oos",
+            "count": 3
+          },
+          {
+            "true": "oos",
+            "predicted": "meta_agent",
+            "count": 3
+          },
+          {
+            "true": "oos",
+            "predicted": "device_agent",
+            "count": 3
+          },
+          {
+            "true": "oos",
+            "predicted": "finance_agent",
+            "count": 3
+          },
+          {
+            "true": "travel_agent",
+            "predicted": "finance_agent",
+            "count": 3
+          },
+          {
+            "true": "device_agent",
+            "predicted": "productivity_agent",
+            "count": 2
+          },
+          {
+            "true": "finance_agent",
+            "predicted": "productivity_agent",
+            "count": 2
+          },
+          {
+            "true": "oos",
+            "predicted": "kitchen_agent",
+            "count": 2
+          }
+        ],
+        "cost_usd": 0.1171,
+        "sample_size": 400
+      },
+      {
+        "router": "R3_llm_seed43",
+        "seed": 43,
+        "total": 400,
+        "correct": 332,
+        "accuracy": 0.83,
+        "per_agent": {
+          "auto_agent": {
+            "total": 50,
+            "correct": 48,
+            "accuracy": 0.96
+          },
+          "device_agent": {
+            "total": 50,
+            "correct": 41,
+            "accuracy": 0.82
+          },
+          "finance_agent": {
+            "total": 50,
+            "correct": 50,
+            "accuracy": 1.0
+          },
+          "kitchen_agent": {
+            "total": 50,
+            "correct": 39,
+            "accuracy": 0.78
+          },
+          "meta_agent": {
+            "total": 50,
+            "correct": 43,
+            "accuracy": 0.86
+          },
+          "oos": {
+            "total": 50,
+            "correct": 27,
+            "accuracy": 0.54
+          },
+          "productivity_agent": {
+            "total": 50,
+            "correct": 44,
+            "accuracy": 0.88
+          },
+          "travel_agent": {
+            "total": 50,
+            "correct": 40,
+            "accuracy": 0.8
+          }
+        },
+        "top_confusion": [
+          {
+            "true": "kitchen_agent",
+            "predicted": "productivity_agent",
+            "count": 8
+          },
+          {
+            "true": "meta_agent",
+            "predicted": "oos",
+            "count": 7
+          },
+          {
+            "true": "device_agent",
+            "predicted": "meta_agent",
+            "count": 6
+          },
+          {
+            "true": "oos",
+            "predicted": "finance_agent",
+            "count": 5
+          },
+          {
+            "true": "oos",
+            "predicted": "auto_agent",
+            "count": 4
+          },
+          {
+            "true": "oos",
+            "predicted": "travel_agent",
+            "count": 4
+          },
+          {
+            "true": "oos",
+            "predicted": "productivity_agent",
+            "count": 4
+          },
+          {
+            "true": "travel_agent",
+            "predicted": "finance_agent",
+            "count": 4
+          },
+          {
+            "true": "travel_agent",
+            "predicted": "kitchen_agent",
+            "count": 4
+          },
+          {
+            "true": "kitchen_agent",
+            "predicted": "oos",
+            "count": 3
+          },
+          {
+            "true": "oos",
+            "predicted": "kitchen_agent",
+            "count": 3
+          },
+          {
+            "true": "oos",
+            "predicted": "device_agent",
+            "count": 3
+          },
+          {
+            "true": "productivity_agent",
+            "predicted": "oos",
+            "count": 3
+          },
+          {
+            "true": "auto_agent",
+            "predicted": "oos",
+            "count": 2
+          },
+          {
+            "true": "device_agent",
+            "predicted": "productivity_agent",
+            "count": 1
+          }
+        ],
+        "cost_usd": 0.1171,
+        "sample_size": 400
+      },
+      {
+        "router": "R3_llm_seed44",
+        "seed": 44,
+        "total": 400,
+        "correct": 329,
+        "accuracy": 0.8225,
+        "per_agent": {
+          "auto_agent": {
+            "total": 50,
+            "correct": 41,
+            "accuracy": 0.82
+          },
+          "device_agent": {
+            "total": 50,
+            "correct": 40,
+            "accuracy": 0.8
+          },
+          "finance_agent": {
+            "total": 50,
+            "correct": 50,
+            "accuracy": 1.0
+          },
+          "kitchen_agent": {
+            "total": 50,
+            "correct": 40,
+            "accuracy": 0.8
+          },
+          "meta_agent": {
+            "total": 50,
+            "correct": 45,
+            "accuracy": 0.9
+          },
+          "oos": {
+            "total": 50,
+            "correct": 28,
+            "accuracy": 0.56
+          },
+          "productivity_agent": {
+            "total": 50,
+            "correct": 44,
+            "accuracy": 0.88
+          },
+          "travel_agent": {
+            "total": 50,
+            "correct": 41,
+            "accuracy": 0.82
+          }
+        },
+        "top_confusion": [
+          {
+            "true": "device_agent",
+            "predicted": "meta_agent",
+            "count": 6
+          },
+          {
+            "true": "oos",
+            "predicted": "productivity_agent",
+            "count": 6
+          },
+          {
+            "true": "kitchen_agent",
+            "predicted": "oos",
+            "count": 5
+          },
+          {
+            "true": "kitchen_agent",
+            "predicted": "productivity_agent",
+            "count": 5
+          },
+          {
+            "true": "meta_agent",
+            "predicted": "oos",
+            "count": 5
+          },
+          {
+            "true": "oos",
+            "predicted": "kitchen_agent",
+            "count": 4
+          },
+          {
+            "true": "oos",
+            "predicted": "device_agent",
+            "count": 4
+          },
+          {
+            "true": "oos",
+            "predicted": "auto_agent",
+            "count": 4
+          },
+          {
+            "true": "travel_agent",
+            "predicted": "kitchen_agent",
+            "count": 4
+          },
+          {
+            "true": "auto_agent",
+            "predicted": "productivity_agent",
+            "count": 3
+          },
+          {
+            "true": "auto_agent",
+            "predicted": "travel_agent",
+            "count": 3
+          },
+          {
+            "true": "auto_agent",
+            "predicted": "oos",
+            "count": 3
+          },
+          {
+            "true": "device_agent",
+            "predicted": "oos",
+            "count": 3
+          },
+          {
+            "true": "oos",
+            "predicted": "meta_agent",
+            "count": 3
+          },
+          {
+            "true": "productivity_agent",
+            "predicted": "finance_agent",
+            "count": 3
+          }
+        ],
+        "cost_usd": 0.117,
+        "sample_size": 400
+      }
+    ],
+    "R4_hybrid_with_llm": [
+      {
+        "router": "R4_hybrid_with_llm_seed42",
+        "seed": 42,
+        "total": 400,
+        "correct": 334,
+        "accuracy": 0.835,
+        "per_agent": {
+          "auto_agent": {
+            "total": 50,
+            "correct": 48,
+            "accuracy": 0.96
+          },
+          "device_agent": {
+            "total": 50,
+            "correct": 39,
+            "accuracy": 0.78
+          },
+          "finance_agent": {
+            "total": 50,
+            "correct": 48,
+            "accuracy": 0.96
+          },
+          "kitchen_agent": {
+            "total": 50,
+            "correct": 46,
+            "accuracy": 0.92
+          },
+          "meta_agent": {
+            "total": 50,
+            "correct": 44,
+            "accuracy": 0.88
+          },
+          "oos": {
+            "total": 50,
+            "correct": 24,
+            "accuracy": 0.48
+          },
+          "productivity_agent": {
+            "total": 50,
+            "correct": 40,
+            "accuracy": 0.8
+          },
+          "travel_agent": {
+            "total": 50,
+            "correct": 45,
+            "accuracy": 0.9
+          }
+        },
+        "top_confusion": [
+          {
+            "true": "oos",
+            "predicted": "meta_agent",
+            "count": 9
+          },
+          {
+            "true": "device_agent",
+            "predicted": "productivity_agent",
+            "count": 6
+          },
+          {
+            "true": "oos",
+            "predicted": "auto_agent",
+            "count": 6
+          },
+          {
+            "true": "productivity_agent",
+            "predicted": "oos",
+            "count": 4
+          },
+          {
+            "true": "device_agent",
+            "predicted": "meta_agent",
+            "count": 3
+          },
+          {
+            "true": "oos",
+            "predicted": "kitchen_agent",
+            "count": 3
+          },
+          {
+            "true": "oos",
+            "predicted": "device_agent",
+            "count": 3
+          },
+          {
+            "true": "productivity_agent",
+            "predicted": "meta_agent",
+            "count": 3
+          },
+          {
+            "true": "auto_agent",
+            "predicted": "travel_agent",
+            "count": 2
+          },
+          {
+            "true": "meta_agent",
+            "predicted": "productivity_agent",
+            "count": 2
+          },
+          {
+            "true": "meta_agent",
+            "predicted": "oos",
+            "count": 2
+          },
+          {
+            "true": "meta_agent",
+            "predicted": "kitchen_agent",
+            "count": 2
+          },
+          {
+            "true": "oos",
+            "predicted": "finance_agent",
+            "count": 2
+          },
+          {
+            "true": "oos",
+            "predicted": "productivity_agent",
+            "count": 2
+          },
+          {
+            "true": "productivity_agent",
+            "predicted": "finance_agent",
+            "count": 2
+          }
+        ],
+        "cost_usd": 0.0295,
+        "stages": {
+          "embedding": 68,
+          "llm": 102,
+          "keyword": 230
+        },
+        "llm_fallback_count": 102,
+        "llm_call_rate": 0.255,
+        "sample_size": 400
+      },
+      {
+        "router": "R4_hybrid_with_llm_seed43",
+        "seed": 43,
+        "total": 400,
+        "correct": 325,
+        "accuracy": 0.8125,
+        "per_agent": {
+          "auto_agent": {
+            "total": 50,
+            "correct": 43,
+            "accuracy": 0.86
+          },
+          "device_agent": {
+            "total": 50,
+            "correct": 40,
+            "accuracy": 0.8
+          },
+          "finance_agent": {
+            "total": 50,
+            "correct": 49,
+            "accuracy": 0.98
+          },
+          "kitchen_agent": {
+            "total": 50,
+            "correct": 45,
+            "accuracy": 0.9
+          },
+          "meta_agent": {
+            "total": 50,
+            "correct": 40,
+            "accuracy": 0.8
+          },
+          "oos": {
+            "total": 50,
+            "correct": 23,
+            "accuracy": 0.46
+          },
+          "productivity_agent": {
+            "total": 50,
+            "correct": 44,
+            "accuracy": 0.88
+          },
+          "travel_agent": {
+            "total": 50,
+            "correct": 41,
+            "accuracy": 0.82
+          }
+        },
+        "top_confusion": [
+          {
+            "true": "device_agent",
+            "predicted": "meta_agent",
+            "count": 6
+          },
+          {
+            "true": "meta_agent",
+            "predicted": "oos",
+            "count": 6
+          },
+          {
+            "true": "oos",
+            "predicted": "finance_agent",
+            "count": 6
+          },
+          {
+            "true": "kitchen_agent",
+            "predicted": "finance_agent",
+            "count": 5
+          },
+          {
+            "true": "oos",
+            "predicted": "productivity_agent",
+            "count": 5
+          },
+          {
+            "true": "meta_agent",
+            "predicted": "productivity_agent",
+            "count": 4
+          },
+          {
+            "true": "oos",
+            "predicted": "auto_agent",
+            "count": 4
+          },
+          {
+            "true": "oos",
+            "predicted": "travel_agent",
+            "count": 4
+          },
+          {
+            "true": "travel_agent",
+            "predicted": "finance_agent",
+            "count": 4
+          },
+          {
+            "true": "auto_agent",
+            "predicted": "device_agent",
+            "count": 3
+          },
+          {
+            "true": "oos",
+            "predicted": "device_agent",
+            "count": 3
+          },
+          {
+            "true": "oos",
+            "predicted": "kitchen_agent",
+            "count": 3
+          },
+          {
+            "true": "auto_agent",
+            "predicted": "productivity_agent",
+            "count": 2
+          },
+          {
+            "true": "oos",
+            "predicted": "meta_agent",
+            "count": 2
+          },
+          {
+            "true": "productivity_agent",
+            "predicted": "meta_agent",
+            "count": 2
+          }
+        ],
+        "cost_usd": 0.0285,
+        "stages": {
+          "keyword": 254,
+          "llm": 99,
+          "embedding": 47
+        },
+        "llm_fallback_count": 99,
+        "llm_call_rate": 0.2475,
+        "sample_size": 400
+      },
+      {
+        "router": "R4_hybrid_with_llm_seed44",
+        "seed": 44,
+        "total": 400,
+        "correct": 332,
+        "accuracy": 0.83,
+        "per_agent": {
+          "auto_agent": {
+            "total": 50,
+            "correct": 41,
+            "accuracy": 0.82
+          },
+          "device_agent": {
+            "total": 50,
+            "correct": 42,
+            "accuracy": 0.84
+          },
+          "finance_agent": {
+            "total": 50,
+            "correct": 45,
+            "accuracy": 0.9
+          },
+          "kitchen_agent": {
+            "total": 50,
+            "correct": 48,
+            "accuracy": 0.96
+          },
+          "meta_agent": {
+            "total": 50,
+            "correct": 47,
+            "accuracy": 0.94
+          },
+          "oos": {
+            "total": 50,
+            "correct": 25,
+            "accuracy": 0.5
+          },
+          "productivity_agent": {
+            "total": 50,
+            "correct": 41,
+            "accuracy": 0.82
+          },
+          "travel_agent": {
+            "total": 50,
+            "correct": 43,
+            "accuracy": 0.86
+          }
+        },
+        "top_confusion": [
+          {
+            "true": "oos",
+            "predicted": "productivity_agent",
+            "count": 7
+          },
+          {
+            "true": "oos",
+            "predicted": "device_agent",
+            "count": 6
+          },
+          {
+            "true": "oos",
+            "predicted": "kitchen_agent",
+            "count": 5
+          },
+          {
+            "true": "travel_agent",
+            "predicted": "productivity_agent",
+            "count": 5
+          },
+          {
+            "true": "device_agent",
+            "predicted": "meta_agent",
+            "count": 4
+          },
+          {
+            "true": "productivity_agent",
+            "predicted": "finance_agent",
+            "count": 4
+          },
+          {
+            "true": "auto_agent",
+            "predicted": "productivity_agent",
+            "count": 3
+          },
+          {
+            "true": "auto_agent",
+            "predicted": "oos",
+            "count": 3
+          },
+          {
+            "true": "meta_agent",
+            "predicted": "oos",
+            "count": 3
+          },
+          {
+            "true": "oos",
+            "predicted": "auto_agent",
+            "count": 3
+          },
+          {
+            "true": "auto_agent",
+            "predicted": "travel_agent",
+            "count": 2
+          },
+          {
+            "true": "finance_agent",
+            "predicted": "kitchen_agent",
+            "count": 2
+          },
+          {
+            "true": "kitchen_agent",
+            "predicted": "travel_agent",
+            "count": 2
+          },
+          {
+            "true": "oos",
+            "predicted": "travel_agent",
+            "count": 2
+          },
+          {
+            "true": "oos",
+            "predicted": "meta_agent",
+            "count": 2
+          }
+        ],
+        "cost_usd": 0.0324,
+        "stages": {
+          "keyword": 227,
+          "embedding": 61,
+          "llm": 112
+        },
+        "llm_fallback_count": 112,
+        "llm_call_rate": 0.28,
+        "sample_size": 400
+      }
+    ],
+    "mcnemar_r4llm_vs_r3": [
+      {
+        "b": 24,
+        "c": 24,
+        "n_disagree": 48,
+        "statistic": 0.0,
+        "p_value": 1.0,
+        "test_type": "exact",
+        "significant_at_0.05": false,
+        "accuracy_a": 0.835,
+        "accuracy_b": 0.835,
+        "delta": 0.0,
+        "seed": 42
+      },
+      {
+        "b": 26,
+        "c": 19,
+        "n_disagree": 45,
+        "statistic": 1.0889,
+        "p_value": 0.371298,
+        "test_type": "exact",
+        "significant_at_0.05": false,
+        "accuracy_a": 0.83,
+        "accuracy_b": 0.8125,
+        "delta": -0.0175,
+        "seed": 43
+      },
+      {
+        "b": 19,
+        "c": 22,
+        "n_disagree": 41,
+        "statistic": 0.2195,
+        "p_value": 0.755229,
+        "test_type": "exact",
+        "significant_at_0.05": false,
+        "accuracy_a": 0.8225,
+        "accuracy_b": 0.83,
+        "delta": 0.0075,
+        "seed": 44
+      }
+    ]
+  },
+  "aggregated": {
+    "R3_llm": {
+      "accuracy": {
+        "mean": 0.8292,
+        "std": 0.0063,
+        "min": 0.8225,
+        "max": 0.835
+      },
+      "cost_usd": {
+        "mean": 0.1171,
+        "std": 0.0001,
+        "min": 0.117,
+        "max": 0.1171
+      }
+    },
+    "R4_hybrid_with_llm": {
+      "accuracy": {
+        "mean": 0.8258,
+        "std": 0.0118,
+        "min": 0.8125,
+        "max": 0.835
+      },
+      "cost_usd": {
+        "mean": 0.0301,
+        "std": 0.002,
+        "min": 0.0285,
+        "max": 0.0324
+      },
+      "llm_call_rate": {
+        "mean": 0.2608,
+        "std": 0.017,
+        "min": 0.2475,
+        "max": 0.28
+      }
+    },
+    "wilson_ci_R3_pooled": {
+      "lower": 0.8068,
+      "upper": 0.8494,
+      "point": 0.8292
+    },
+    "wilson_ci_R4LLM_pooled": {
+      "lower": 0.8033,
+      "upper": 0.8462,
+      "point": 0.8258
+    },
+    "mcnemar_significant_count": 0,
+    "mcnemar_p_values": [
+      1.0,
+      0.371298,
+      0.755229
+    ],
+    "mcnemar_deltas": [
+      0.0,
+      -0.0175,
+      0.0075
+    ],
+    "n_seeds": 3,
+    "total_pooled_n": 1200
+  },
+  "total_cost_usd": 0.4416
+}

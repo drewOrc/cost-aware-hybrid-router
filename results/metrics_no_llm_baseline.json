@@ -1,22 +1,19 @@
 {
   "config": {
-    "llm_n_per_seed": 400,
-    "n_per_agent": 50,
+    "llm_n": 160,
+    "n_per_agent": 20,
     "seeds": [
-      42,
-      43,
-      44
+      42
     ],
-    "n_seeds": 3,
-    "workers": 6,
-    "thresholds_with_llm": {
-      "kt": 0.5,
-      "et": 0.1
-    },
-    "thresholds_source": "tuned on val set (tuned_thresholds.json)",
+    "setfit": true,
+    "threshold_source": "tuned on val set (tuned_thresholds.json)",
     "thresholds_no_llm": {
       "kt": 1.5,
       "et": 0.05
+    },
+    "thresholds_with_llm": {
+      "kt": 0.5,
+      "et": 0.1
     }
   },
   "R1_keyword": {
@@ -420,115 +417,6 @@
       "keyword_accepted": 2282,
       "embedding_accepted": 3218,
       "llm_fallback": 0
-    }
-  },
-  "R3_llm": {
-    "router": "R3_llm",
-    "total": 400,
-    "accuracy": 0.8292,
-    "sample_size": 400,
-    "cost_usd": 0.1171,
-    "per_agent": {
-      "auto_agent": {
-        "total": 150,
-        "correct": 135,
-        "accuracy": 0.9
-      },
-      "device_agent": {
-        "total": 150,
-        "correct": 121,
-        "accuracy": 0.8067
-      },
-      "finance_agent": {
-        "total": 150,
-        "correct": 148,
-        "accuracy": 0.9867
-      },
-      "kitchen_agent": {
-        "total": 150,
-        "correct": 122,
-        "accuracy": 0.8133
-      },
-      "meta_agent": {
-        "total": 150,
-        "correct": 134,
-        "accuracy": 0.8933
-      },
-      "oos": {
-        "total": 150,
-        "correct": 87,
-        "accuracy": 0.58
-      },
-      "productivity_agent": {
-        "total": 150,
-        "correct": 125,
-        "accuracy": 0.8333
-      },
-      "travel_agent": {
-        "total": 150,
-        "correct": 123,
-        "accuracy": 0.82
-      }
-    }
-  },
-  "R4_hybrid_with_llm": {
-    "router": "R4_hybrid_with_llm",
-    "total": 400,
-    "accuracy": 0.8258,
-    "sample_size": 400,
-    "cost_usd": 0.0301,
-    "per_agent": {
-      "auto_agent": {
-        "total": 150,
-        "correct": 132,
-        "accuracy": 0.88
-      },
-      "device_agent": {
-        "total": 150,
-        "correct": 121,
-        "accuracy": 0.8067
-      },
-      "finance_agent": {
-        "total": 150,
-        "correct": 142,
-        "accuracy": 0.9467
-      },
-      "kitchen_agent": {
-        "total": 150,
-        "correct": 139,
-        "accuracy": 0.9267
-      },
-      "meta_agent": {
-        "total": 150,
-        "correct": 131,
-        "accuracy": 0.8733
-      },
-      "oos": {
-        "total": 150,
-        "correct": 72,
-        "accuracy": 0.48
-      },
-      "productivity_agent": {
-        "total": 150,
-        "correct": 125,
-        "accuracy": 0.8333
-      },
-      "travel_agent": {
-        "total": 150,
-        "correct": 129,
-        "accuracy": 0.86
-      }
-    },
-    "stages": {
-      "embedding": 68,
-      "llm": 102,
-      "keyword": 230
-    },
-    "hybrid_stats": {
-      "keyword_accepted": 230,
-      "embedding_accepted": 68,
-      "llm_fallback": 102,
-      "total_queries": 400
     }
   },
   "SetFit_baseline": {
