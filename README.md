@@ -267,8 +267,5 @@ MIT License — see [LICENSE](LICENSE).
 
 ## Author / 作者
 
-**Boyu Chen (陳柏宇)** — AI Engineer, applying to NTU CSIE (2027) — [GitHub](https://github.com/drewOrc)
+**Boyu Chen (陳柏宇)** — AI Engineer — [GitHub](https://github.com/drewOrc)
 
-Built as part of a grad school application to [MiuLab](https://www.csie.ntu.edu.tw/~miulab/) at NTU, studying LLM Agent Systems.
-
-為申請台大資工所 [MiuLab](https://www.csie.ntu.edu.tw/~miulab/) 陳縕儂教授實驗室（研究 LLM Agent Systems）的實驗作品。
