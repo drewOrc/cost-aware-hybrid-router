@@ -27,62 +27,85 @@ with open(RESULTS_DIR / "metrics.json") as f:
 # ─────────────────────────────────────────────
 
 def plot_accuracy_vs_cost():
-    fig, ax = plt.subplots(figsize=(8, 6))
+    fig, ax = plt.subplots(figsize=(9, 6.5))
 
     # 為了公平比較，把成本標準化到「每 1000 query 的美元成本」
-    routers = {
-        "R1\nKeyword": {"acc": metrics["R1_keyword"]["accuracy"], "cost_per_1k": 0},
-        "R2\nEmbedding": {"acc": metrics["R2_embedding"]["accuracy"], "cost_per_1k": 0},
-        "R4\nHybrid\n(no LLM)": {"acc": metrics["R4_hybrid_no_llm"]["accuracy"], "cost_per_1k": 0},
-    }
+    # 每個 router 自訂 marker / color / 標籤偏移，避免左邊 zero-cost 點重疊
+    routers = [
+        {
+            "key": "R1_keyword", "label": "R1 Keyword",
+            "acc": metrics["R1_keyword"]["accuracy"], "cost_per_1k": 0,
+            "color": "#2196F3", "marker": "s",
+            "xytext": (14, -4), "ha": "left",
+        },
+        {
+            "key": "R2_embedding", "label": "R2 Embedding",
+            "acc": metrics["R2_embedding"]["accuracy"], "cost_per_1k": 0,
+            "color": "#4CAF50", "marker": "^",
+            "xytext": (14, -16), "ha": "left",
+        },
+        {
+            "key": "R4_hybrid_no_llm", "label": "R4 Hybrid (no LLM)",
+            "acc": metrics["R4_hybrid_no_llm"]["accuracy"], "cost_per_1k": 0,
+            "color": "#FF9800", "marker": "D",
+            "xytext": (14, 10), "ha": "left",
+        },
+    ]
 
     if "R3_llm" in metrics:
         r3 = metrics["R3_llm"]
         cost_per_q = r3["cost_usd"] / r3["sample_size"]
-        routers["R3\nLLM"] = {"acc": r3["accuracy"], "cost_per_1k": cost_per_q * 1000}
+        routers.append({
+            "key": "R3_llm", "label": "R3 LLM",
+            "acc": r3["accuracy"], "cost_per_1k": cost_per_q * 1000,
+            "color": "#F44336", "marker": "o",
+            "xytext": (-14, -4), "ha": "right",
+        })
 
     if "R4_hybrid_with_llm" in metrics:
         r4l = metrics["R4_hybrid_with_llm"]
         cost_per_q = r4l["cost_usd"] / r4l["sample_size"]
-        routers["R4+LLM\nHybrid\n(with LLM)"] = {"acc": r4l["accuracy"], "cost_per_1k": cost_per_q * 1000}
+        routers.append({
+            "key": "R4_hybrid_with_llm", "label": "R4+LLM Hybrid",
+            "acc": r4l["accuracy"], "cost_per_1k": cost_per_q * 1000,
+            "color": "#9C27B0", "marker": "*",
+            "xytext": (12, 8), "ha": "left",
+        })
 
-    colors = ["#2196F3", "#4CAF50", "#FF9800", "#F44336", "#9C27B0"]
-    markers = ["s", "^", "D", "o", "*"]
-
-    for i, (name, data) in enumerate(routers.items()):
+    for r in routers:
         ax.scatter(
-            data["cost_per_1k"], data["acc"] * 100,
-            s=200, c=colors[i], marker=markers[i],
-            zorder=5, edgecolors="white", linewidths=1.5
+            r["cost_per_1k"], r["acc"] * 100,
+            s=220, c=r["color"], marker=r["marker"],
+            zorder=5, edgecolors="white", linewidths=1.5,
+            label=f'{r["label"]} — {r["acc"]*100:.1f}%',
         )
-        # Label offset
-        offset_x = 0.005 if data["cost_per_1k"] == 0 else -0.02
         ax.annotate(
-            name,
-            (data["cost_per_1k"], data["acc"] * 100),
+            r["label"],
+            (r["cost_per_1k"], r["acc"] * 100),
             textcoords="offset points",
-            xytext=(12, -5),
-            fontsize=9,
-            ha="left"
+            xytext=r["xytext"],
+            fontsize=9.5, ha=r["ha"],
+            fontweight="medium",
         )
 
     # Pareto frontier line (connect non-dominated points)
-    points = sorted(routers.items(), key=lambda x: x[1]["cost_per_1k"])
+    points = sorted(routers, key=lambda x: x["cost_per_1k"])
     pareto_x, pareto_y = [], []
     best_acc = 0
-    for name, data in points:
-        if data["acc"] >= best_acc:
-            pareto_x.append(data["cost_per_1k"])
-            pareto_y.append(data["acc"] * 100)
-            best_acc = data["acc"]
-    ax.plot(pareto_x, pareto_y, "k--", alpha=0.3, linewidth=1, label="Pareto frontier")
+    for r in points:
+        if r["acc"] >= best_acc:
+            pareto_x.append(r["cost_per_1k"])
+            pareto_y.append(r["acc"] * 100)
+            best_acc = r["acc"]
+    ax.plot(pareto_x, pareto_y, "k--", alpha=0.35, linewidth=1.2, label="Pareto frontier", zorder=1)
 
     ax.set_xlabel("Cost per 1,000 queries (USD)", fontsize=12)
     ax.set_ylabel("Routing Accuracy (%)", fontsize=12)
     ax.set_title("Accuracy vs. Cost — Router Comparison on CLINC150", fontsize=13, fontweight="bold")
     ax.set_ylim(60, 95)
+    ax.set_xlim(-0.02, 0.34)
     ax.grid(True, alpha=0.3)
-    ax.legend(loc="lower right", fontsize=9)
+    ax.legend(loc="lower right", fontsize=9, framealpha=0.95)
 
     plt.tight_layout()
     out = FIGURES_DIR / "accuracy_vs_cost.png"
