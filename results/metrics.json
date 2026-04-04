@@ -543,7 +543,7 @@
       "total_latency_ms": 146758
     },
     "sample_size": 160,
-    "note": "Evaluated on stratified sample (50/agent), not full test set"
+    "note": "Evaluated on stratified sample (20/agent = 160 queries), not full test set"
   },
   "R4_hybrid_with_llm": {
     "router": "R4_hybrid_with_llm",

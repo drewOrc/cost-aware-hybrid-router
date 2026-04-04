@@ -11,8 +11,9 @@ evaluate.py — 統一評估所有 Router 變體
 
 設計：
 - R1 (Keyword), R2 (Embedding), R4 (Hybrid no-LLM) 跑完整 test set（5,500 queries）
-- R3 (LLM) 跑 stratified sample（每 agent 50 筆 = ~400 筆）以控制 API 成本
+- R3 (LLM) 跑 stratified sample（每 agent 20 筆 = 160 筆）以控制 API 成本
 - R4+LLM (Hybrid with LLM fallback) 只在 R4 低信心時才呼叫 LLM
+- 因 R3/R4+LLM 只在 n=160 評估，這兩者的比較是探索性的，不做為統計顯著的結論
 - 所有結果記錄到 results/metrics.json
 """
 

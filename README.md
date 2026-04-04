@@ -12,9 +12,9 @@
 
 ## TL;DR / 一句話
 
-**EN:** Production agent frameworks (AutoGen, CrewAI, LangGraph) typically route every query through an LLM. This experiment shows that a simple keyword → embedding → LLM cascade achieves **88.1%** routing accuracy on CLINC150 while calling the LLM on only **47%** of queries — beating full-LLM routing (**85.6%**) at **53% lower cost**.
+**EN:** Production agent frameworks (AutoGen, CrewAI, LangGraph) typically route every query through an LLM. This experiment explores an alternative: a keyword → embedding → LLM cascade. On CLINC150 we observe that the cascade (with LLM fallback) matches full-LLM routing accuracy (**88.1% vs 85.6%** on a 160-query sample) while calling the LLM on only **47%** of queries, suggesting ~53% lower routing cost. **Note:** the accuracy comparison is on a small sample (n=160) for cost reasons and should be read as exploratory — see Limitations.
 
-**中:** 主流 agent 框架（AutoGen、CrewAI、LangGraph）通常讓每一筆查詢都經過 LLM 路由。本實驗顯示，一個簡單的 keyword → embedding → LLM 三層 cascade 在 CLINC150 上達到 **88.1%** 準確率，且只對 **47%** 的查詢呼叫 LLM — 不但勝過全量 LLM 路由（**85.6%**），成本還降低 **53%**。
+**中:** 主流 agent 框架（AutoGen、CrewAI、LangGraph）通常讓每一筆查詢都經過 LLM 路由。本實驗探索另一條路：keyword → embedding → LLM 三層 cascade。在 CLINC150 上觀察到，加入 LLM fallback 的 cascade 與全量 LLM 路由的準確率相當（n=160 樣本上 **88.1% vs 85.6%**），但只對 **47%** 的查詢呼叫 LLM，暗示約 **53%** 的路由成本節省。**注意：** 準確率比較受限於 API 成本在小樣本（n=160）上進行，應視為探索性結果 — 詳見 Limitations。
 
 ---
 
@@ -24,14 +24,17 @@
 
 **在 CLINC150 測試集上評估（5,500 筆查詢，150 個 intent 映射到 7 個 agent + OOS）：**
 
-| Router | Accuracy / 準確率 | LLM Call Rate / LLM 呼叫率 | Cost (USD) / 成本 |
-|---|---|---|---|
-| R1 Keyword (regex rules) | 64.8% | 0% | $0 |
-| R2 Embedding (TF-IDF centroid) | 74.0% | 0% | $0 |
-| R3 LLM (Claude Haiku zero-shot) | 85.6%¹ | 100% | $0.047 / 160 queries |
-| **R4 Hybrid cascade** | **88.1%¹** | **47%** | **$0.022 / 160 queries** |
+| Router | Accuracy / 準確率 | Sample Size / 樣本 | LLM Call Rate / LLM 呼叫率 | Cost (USD) / 成本 |
+|---|---|---|---|---|
+| R1 Keyword (regex rules) | 64.8% | n = 5,500 (full test) | 0% | $0 |
+| R2 Embedding (TF-IDF centroid) | 74.0% | n = 5,500 (full test) | 0% | $0 |
+| R4 Hybrid cascade (no LLM) | 74.9% | n = 5,500 (full test) | 0% | $0 |
+| R3 LLM (Claude Haiku zero-shot) | 85.6%¹ | n = 160 (stratified) | 100% | $0.047 |
+| **R4 Hybrid cascade (with LLM)** | **88.1%¹** | **n = 160 (stratified)** | **47%** | **$0.022** |
 
-¹ R3 and R4's LLM-touching numbers computed on a stratified sample (20 per agent = 160 queries) to keep API costs reasonable. R1, R2, and R4-no-LLM ran on the full 5,500. / R3 與 R4 的 LLM 相關數字在分層抽樣（每 agent 20 筆 = 160 筆）上計算，R1、R2、R4-no-LLM 跑完整 5,500 筆。
+¹ **Important caveat:** R3 and R4-with-LLM were evaluated on a stratified sample (20 per agent = 160 queries) to keep API costs reasonable. The 2.5-point gap between R4 (88.1%, 141/160) and R3 (85.6%, 137/160) reflects only a 4-query difference and should be read as exploratory, not as a statistically significant claim. The 95% confidence interval at n=160 is roughly ±5 percentage points. See the **Limitations** section below.
+
+¹ **重要說明：** R3 與 R4+LLM 在分層抽樣（每 agent 20 筆 = 160 筆）上評估以控制 API 成本。R4（88.1%，141/160）與 R3（85.6%，137/160）之間 2.5 個百分點的差距僅反映 4 筆 query 的差異，應視為探索性結果，**而非具統計顯著性的結論**。n=160 時 95% 信賴區間約為 ±5 個百分點。詳見下方 **Limitations** 章節。
 
 ![Accuracy vs Cost Pareto frontier](results/figures/accuracy_vs_cost.png)
 
@@ -116,9 +119,9 @@ Query ─┐
                                                                                └────────────────┘
 ```
 
-**Thresholds** were tuned on a held-out validation set via grid search: `keyword_threshold=1.5`, `embed_threshold=0.05`.
+**Thresholds** are currently set manually at `keyword_threshold=1.5`, `embed_threshold=0.05` (no-LLM variant) / `0.15` (with-LLM variant). A grid-search helper (`tune_thresholds()` in `hybrid_router.py`) is provided for validation-set tuning, but has not yet been wired into the main evaluation — this is flagged under **Limitations** below.
 
-**閾值**在獨立的 validation set 上透過 grid search 調整：`keyword_threshold=1.5`、`embed_threshold=0.05`。
+**閾值**目前手動設定為 `keyword_threshold=1.5`、`embed_threshold=0.05`（no-LLM 變體）/ `0.15`（with-LLM 變體）。`hybrid_router.py` 中有 `tune_thresholds()` 函數可在 validation set 上做 grid search，但尚未整合進主評估流程 — 這點在下方 **Limitations** 中標註。
 
 ---
 
@@ -184,14 +187,60 @@ cost-aware-hybrid-router/
 - **Fixed seed** for stratified sampling (seed=42)
 - **Temperature=0** for Claude API calls
 - **Frozen test set** — same 5,500 queries across all routers
-- **Validation-set threshold tuning** — no peeking at test set
 - **All dependencies pinned** in `requirements.txt`
 
 - **分層抽樣使用固定 seed**（seed=42）
 - **Claude API 呼叫 temperature=0**
 - **凍結的測試集** — 四個 router 跑同樣的 5,500 筆
-- **在 validation set 上調整閾值** — 不偷看測試集
 - **所有相依套件鎖定版本**於 `requirements.txt`
+
+---
+
+## Limitations / 研究限制
+
+This is a **preliminary exploration**, not a rigorous empirical claim. A peer reviewer would rightly flag the following:
+
+這是一個**初步探索實驗**，不是嚴謹的實證論斷。同儕審閱者會合理地指出以下幾點：
+
+1. **Small LLM-evaluation sample (n=160).** R3 and R4-with-LLM were only evaluated on 160 queries (20 per agent) to keep API costs under $0.10. At this sample size, the 95% CI on accuracy is roughly ±5 percentage points, so the R4 vs R3 gap (88.1% vs 85.6%, a 4-query difference) is **not statistically significant** without further testing. No McNemar's test or bootstrap CI has been computed yet.
+
+   **LLM 評估樣本過小 (n=160)。** R3 和 R4+LLM 僅在 160 筆（每 agent 20 筆）上評估以將 API 成本控制在 $0.10 以下。在此樣本規模下，準確率的 95% 信賴區間約為 ±5 個百分點，因此 R4 與 R3 的差距（88.1% vs 85.6%，僅 4 筆 query 差異）在未做進一步檢定前**不具統計顯著性**。目前尚未計算 McNemar's test 或 bootstrap CI。
+
+2. **Single random seed, no variance reporting.** All experiments ran once with seed=42. No mean ± std reported across multiple seeds.
+
+   **單一隨機種子，無變異數報告。** 所有實驗僅以 seed=42 跑一次，未跨多個 seed 報告 mean ± std。
+
+3. **Thresholds set manually, not tuned.** The `keyword_threshold=1.5` and `embed_threshold` values were chosen by intuition and light inspection, not via systematic grid search on a validation set. A `tune_thresholds()` helper exists in `hybrid_router.py` but has not been integrated into the main evaluation loop.
+
+   **閾值為手動設定，未調參。** `keyword_threshold=1.5` 與 `embed_threshold` 的數值是憑直覺與簡單檢視選擇，不是在 validation set 上系統性 grid search 的結果。`hybrid_router.py` 中雖有 `tune_thresholds()` 函數，但尚未整合進主評估流程。
+
+4. **Different `embed_threshold` for R4 variants.** R4-no-LLM uses `0.05` (lenient, since there's no LLM fallback) while R4-with-LLM uses `0.15` (stricter, triggers more fallback). This means the two R4 variants are not identical configurations, which complicates the "effect of adding LLM" attribution.
+
+   **R4 兩個變體使用不同的 `embed_threshold`。** R4-no-LLM 使用 `0.05`（較寬鬆，因為沒有 LLM fallback），R4-with-LLM 使用 `0.15`（較嚴格，觸發更多 fallback）。這意味著兩個 R4 變體並非完全相同的配置，這使「加入 LLM 的效果」的歸因變得複雜。
+
+5. **OOS detection is weak across the cascade.** On the full test set, embedding-based routing gets only 26% accuracy on OOS queries (vs 80% for keyword's fail-closed default). The LLM variant recovers some of this (60% on n=20 OOS sample), but OOS handling is an unresolved weakness in the current cascade design.
+
+   **整個 cascade 對 OOS 偵測都偏弱。** 在完整測試集上，embedding routing 對 OOS 查詢僅達 26% 準確率（vs. keyword 的 fail-closed 預設 80%）。LLM 變體有部分恢復（n=20 的 OOS 樣本上為 60%），但 OOS 處理仍是當前 cascade 設計中未解決的弱點。
+
+6. **Single dataset, single LLM model.** Evaluated only on CLINC150 (English, commercial domains) with only Claude Haiku. Generalization to other datasets, languages, or LLMs is untested.
+
+   **單一資料集、單一 LLM 模型。** 僅在 CLINC150（英文、商業領域）上、僅以 Claude Haiku 評估。對其他資料集、語言或 LLM 的泛化能力尚未驗證。
+
+### What would be needed to upgrade this to a paper-grade result / 升級為論文等級結果所需的工作
+
+- Scale R3/R4-with-LLM evaluation to **n ≥ 1000** (budget ~$5).
+- Run **3–5 seeds**, report mean ± std.
+- Add **McNemar's test** for R4 vs R3 comparison on the shared sample.
+- Actually invoke `tune_thresholds()` and report the grid-search results.
+- Add a stronger baseline (e.g., SetFit or DistilBERT fine-tuned on CLINC150 train split).
+- Evaluate on a second intent-classification dataset (e.g., BANKING77 or HWU64) for cross-dataset validation.
+
+- 將 R3/R4+LLM 評估規模擴大到 **n ≥ 1000**（預算約 $5）。
+- 跑 **3–5 個 seed**，報告 mean ± std。
+- 對 R4 vs R3 在共同樣本上的比較加上 **McNemar's test**。
+- 實際呼叫 `tune_thresholds()` 並報告 grid search 結果。
+- 加入更強的 baseline（例如在 CLINC150 train split 上 fine-tune 的 SetFit 或 DistilBERT）。
+- 在第二個意圖分類資料集（如 BANKING77 或 HWU64）上評估以做跨資料集驗證。
 
 ---
 
