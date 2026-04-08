@@ -1,0 +1,59 @@
+{
+  "thresholds": {
+    "kt": 0.5,
+    "et": 0.1
+  },
+  "results": [
+    {
+      "model": "TF-IDF (current R2)",
+      "params": "10K features, 1-2gram, sublinear_tf",
+      "standalone": {
+        "accuracy": 74.0,
+        "mean_confidence": 0.1267,
+        "median_confidence": 0.1117,
+        "latency_per_query_ms": 0.31,
+        "total_time_s": 1.7
+      },
+      "cascade": {
+        "cascade_oracle_acc": 86.73,
+        "r1_stop_rate": 59.1,
+        "r2_stop_rate": 14.9,
+        "llm_call_rate": 26.0
+      }
+    },
+    {
+      "model": "all-MiniLM-L6-v2",
+      "params": "384d, 23M params",
+      "standalone": {
+        "accuracy": 73.27,
+        "mean_confidence": 0.3914,
+        "median_confidence": 0.409,
+        "latency_per_query_ms": 6.16,
+        "total_time_s": 33.9
+      },
+      "cascade": {
+        "cascade_oracle_acc": 75.64,
+        "r1_stop_rate": 59.1,
+        "r2_stop_rate": 39.5,
+        "llm_call_rate": 1.4
+      }
+    },
+    {
+      "model": "all-mpnet-base-v2",
+      "params": "768d, 109M params",
+      "standalone": {
+        "accuracy": 76.24,
+        "mean_confidence": 0.3977,
+        "median_confidence": 0.4139,
+        "latency_per_query_ms": 17.14,
+        "total_time_s": 94.3
+      },
+      "cascade": {
+        "cascade_oracle_acc": 77.25,
+        "r1_stop_rate": 59.1,
+        "r2_stop_rate": 39.7,
+        "llm_call_rate": 1.3
+      }
+    }
+  ]
+}
