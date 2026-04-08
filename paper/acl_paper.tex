@@ -68,7 +68,7 @@ Our contributions are four-fold. First, we evaluate \textbf{four routers under i
 The CLINC150 benchmark \citep{larson2019evaluation} comprises 150 in-domain intents across 10 domains plus an out-of-scope (OOS) class, and was explicitly designed to stress-test intent classifiers under distribution shift. Strong baselines include SetFit \citep{tunstall2022efficient}, which uses contrastive few-shot fine-tuning on sentence-transformer encoders, and fine-tuned DeBERTa. We use SetFit as a no-LLM baseline in our headline table (70.2\% on the full test set), and Claude Haiku~4.5 zero-shot as our cost ceiling.
 
 \paragraph{Cost-aware LLM cascades.}
-FrugalGPT \citep{chen2023frugalgpt} introduced the general cascade pattern---try a cheaper model first, escalate to a more expensive model only when the cheap model's confidence is low---on single-turn question answering tasks, reporting cost reductions of up to 98\% at matched accuracy. We adapt this pattern to \emph{agent routing}, a narrower but extremely high-frequency task: every user turn in a multi-agent system is routed, so savings compound multiplicatively.
+FrugalGPT \citep{chen2023frugalgpt} introduced the general cascade pattern---try a cheaper model first, escalate to a more expensive model only when the cheap model's confidence is low---on single-turn question answering tasks, reporting cost reductions of up to 98\% at matched accuracy. \citet{arora2024intent} recently evaluated SetFit and seven LLMs on CLINC150, proposing an uncertainty-based routing strategy that escalates low-confidence SetFit predictions to an LLM. Our cascade differs in two ways: (i)~it begins with a zero-parameter keyword stage that resolves 59\% of queries before any model runs, and (ii)~the cheap-stage comparison (\S\ref{sec:cheapstage}) shows that \emph{confidence calibration}, not standalone accuracy, determines cascade effectiveness---a finding their work does not explore.
 
 \paragraph{Agent-routing systems.}
 Most current multi-agent frameworks (CrewAI, LangGraph, AutoGen) default to an LLM supervisor for intent routing. Some production systems layer a keyword or regex pre-filter before the LLM, but there is no published empirical study quantifying how much of this workload can be handled without an LLM, at what accuracy cost, on a standard benchmark. Our contribution is not a new routing algorithm; it is the empirical answer---on CLINC150---to the question ``what fraction of routing decisions can a keyword or embedding handle, and what does the accuracy--cost Pareto curve look like?''
@@ -286,7 +286,12 @@ Code, tuned thresholds, per-seed trajectories, LLM call logs: \url{https://githu
 
 \bibliographystyle{acl_natbib}
 
-\begin{thebibliography}{5}
+\begin{thebibliography}{6}
+\bibitem[Arora et~al.(2024)]{arora2024intent}
+Gaurav Arora, Shreya Jain, and Srujana Merugu. 2024.
+\newblock Intent Detection in the Age of {LLMs}.
+\newblock In \emph{Proceedings of EMNLP 2024 Industry Track}, pages 1211--1227.
+
 \bibitem[Chen et~al.(2023)]{chen2023frugalgpt}
 Lingjiao Chen, Matei Zaharia, and James Zou. 2023.
 \newblock {FrugalGPT}: How to Use Large Language Models While Reducing Cost and Improving Performance.
