@@ -26,3 +26,14 @@ Thumbs.db
 checkpoints/
 models/
 results/_smoke.json
+
+# Personal notes / internal dev files
+DEVLOG.md
+RUN_UPGRADED.md
+commit_and_push.sh
+
+# LibreOffice / temp lock files
+.~lock.*
+*.tmp
+paper/.~lock.*
+paper/*.tmp

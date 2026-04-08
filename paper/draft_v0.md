@@ -80,8 +80,8 @@ R3 and R4 API costs are measured directly from Anthropic response metadata (inpu
 | R2 embedding (full test, n=5,500) | 74.0% | — | 0% | ~$0 |
 | SetFit baseline (full test, n=5,500) | 70.2% | — | 0% | ~$0 |
 | R4 no-LLM (R1→R2 only, n=5,500) | 74.9% | — | 0% | ~$0 |
-| **R3 LLM-only** (pooled n=1,200) | **82.9%** | [80.7, 84.9] | 100% | $9.8×10⁻⁵ |
-| **R4 hybrid + LLM** (pooled n=1,200) | **82.6%** | [80.3, 84.6] | 26.1% | $2.5×10⁻⁵ |
+| **R3 LLM-only** (pooled n=1,200) | **82.9%** | [80.7, 84.9] | 100% | $2.93×10⁻⁴ |
+| **R4 hybrid + LLM** (pooled n=1,200) | **82.6%** | [80.3, 84.6] | 26.1% | $7.52×10⁻⁵ |
 
 The two hero rows have overlapping 95% confidence intervals. The no-LLM cascade R4-no-LLM reaches only 74.9%, so the LLM escalation branch is doing *real work* on the 26% of queries it sees — the question is whether that work needs to happen on every query.
 
