@@ -1,0 +1,104 @@
+{
+  "w8_cascade_stages_seed42": {
+    "auto_agent": {
+      "total": 50,
+      "r1_stop": 45,
+      "r1_correct": 44,
+      "r1_error_rate": 0.0222,
+      "r2_stop": 1,
+      "r2_correct": 1,
+      "r2_error_rate": 0.0,
+      "escalated": 4,
+      "escalation_rate": 0.08
+    },
+    "device_agent": {
+      "total": 50,
+      "r1_stop": 18,
+      "r1_correct": 14,
+      "r1_error_rate": 0.2222,
+      "r2_stop": 23,
+      "r2_correct": 22,
+      "r2_error_rate": 0.0435,
+      "escalated": 9,
+      "escalation_rate": 0.18
+    },
+    "finance_agent": {
+      "total": 50,
+      "r1_stop": 49,
+      "r1_correct": 47,
+      "r1_error_rate": 0.0408,
+      "r2_stop": 0,
+      "r2_correct": 0,
+      "r2_error_rate": null,
+      "escalated": 1,
+      "escalation_rate": 0.02
+    },
+    "kitchen_agent": {
+      "total": 50,
+      "r1_stop": 30,
+      "r1_correct": 26,
+      "r1_error_rate": 0.1333,
+      "r2_stop": 12,
+      "r2_correct": 11,
+      "r2_error_rate": 0.0833,
+      "escalated": 8,
+      "escalation_rate": 0.16
+    },
+    "meta_agent": {
+      "total": 50,
+      "r1_stop": 18,
+      "r1_correct": 16,
+      "r1_error_rate": 0.1111,
+      "r2_stop": 11,
+      "r2_correct": 10,
+      "r2_error_rate": 0.0909,
+      "escalated": 21,
+      "escalation_rate": 0.42
+    },
+    "oos": {
+      "total": 50,
+      "r1_stop": 7,
+      "r1_correct": 0,
+      "r1_error_rate": 1.0,
+      "r2_stop": 9,
+      "r2_correct": 4,
+      "r2_error_rate": 0.5556,
+      "escalated": 34,
+      "escalation_rate": 0.68
+    },
+    "productivity_agent": {
+      "total": 50,
+      "r1_stop": 32,
+      "r1_correct": 28,
+      "r1_error_rate": 0.125,
+      "r2_stop": 9,
+      "r2_correct": 7,
+      "r2_error_rate": 0.2222,
+      "escalated": 9,
+      "escalation_rate": 0.18
+    },
+    "travel_agent": {
+      "total": 50,
+      "r1_stop": 38,
+      "r1_correct": 36,
+      "r1_error_rate": 0.0526,
+      "r2_stop": 3,
+      "r2_correct": 2,
+      "r2_error_rate": 0.3333,
+      "escalated": 9,
+      "escalation_rate": 0.18
+    }
+  },
+  "w6_latency": {
+    "r1_keyword_ms": {
+      "mean": 3.215,
+      "median": 3.212,
+      "p95": 3.308
+    },
+    "r2_embedding_ms": {
+      "mean": 0.342,
+      "median": 0.334,
+      "p95": 0.406
+    }
+  }
+}

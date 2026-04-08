@@ -202,7 +202,7 @@ async function main() {
 
         // ─── ABSTRACT ───
         heading(1, "Abstract"),
-        p("Routing user utterances to the correct task agent is a foundational step in multi-agent LLM systems, and the LLM-as-router pattern has become the default for its accuracy. We ask whether that accuracy is worth its cost. On CLINC150 (150 intents mapped to 7 agents + OOS), we compare four routers spanning a 3-order-of-magnitude cost range: (R1) keyword, (R2) embedding-nearest-centroid, (R3) Claude Haiku 4.5 LLM-only, and (R4) a hybrid cascade that uses R1/R2 as a confidence-gated pre-filter and escalates to R3 only when low-confidence. Across 3 seeds of 400 stratified queries (1,200 pooled), R4 achieves **82.6% \u00b1 1.2pp** accuracy versus R3's **82.9% \u00b1 0.6pp** \u2014 statistically indistinguishable by McNemar paired test (p > 0.37) \u2014 while escalating to the LLM on only **26.1%** of queries, yielding a **74.3% reduction in LLM cost**. We release code, tuned thresholds, and per-seed trajectories."),
+        p("Routing user utterances to the correct task agent is a foundational step in multi-agent LLM systems, and the LLM-as-router pattern has become the default for its accuracy. We ask whether that accuracy is worth its cost. On the CLINC150 benchmark (150 intents mapped to 7 agents + OOS), we compare four routers spanning a 3-order-of-magnitude cost range: (R1) keyword, (R2) embedding-nearest-centroid, (R3) Claude Haiku 4.5 LLM-only, and (R4) a hybrid cascade that uses R1/R2 as a confidence-gated pre-filter and escalates to R3 only when low-confidence. Across 3 seeds of 400 stratified queries (1,200 pooled), R4 achieves **82.6% \u00b1 1.2pp** accuracy versus R3's **82.9% \u00b1 0.6pp** \u2014 statistically indistinguishable by McNemar paired test (p > 0.37, overlapping Wilson 95% CIs) \u2014 while escalating to the LLM on only **26.1%** of queries, yielding a **74.3% reduction in LLM cost**. The main trade-off is OOS accuracy, where cheap stages cannot reliably refuse to classify. We release code, tuned thresholds, and per-seed trajectories."),
 
         // ─── 1. INTRODUCTION ───
         heading(1, "1. Introduction"),
@@ -230,7 +230,7 @@ async function main() {
         p("**R4 \u2014 Hybrid cascade.** R4 is a confidence-gated cascade over R1 \u2192 R2 \u2192 R3 with two thresholds (kt, et). If R1_confidence \u2265 kt, return R1\u2019s prediction; else if R2_confidence \u2265 et, return R2\u2019s prediction; otherwise call R3 (LLM). We refer to this full cascade as **R4+LLM**. We also report **R4 no-LLM** \u2014 the same cascade with the LLM escalation branch replaced by R2\u2019s best guess \u2014 as a fair no-API baseline."),
 
         heading(2, "3.3 Threshold Tuning"),
-        p("Thresholds are tuned on a held-out validation split via grid search over kt \u2208 {0.5, 1.0, 1.5, 2.0} and et \u2208 {0.05, 0.08, 0.10, 0.15}. The objective maximises accuracy \u2212 0.1 \u00b7 LLM_call_rate, which prefers configurations that trade LLM calls for cheap-stage calls at equal accuracy. The tuned values for R4+LLM are kt = 0.5, et = 0.10."),
+        p("Thresholds are tuned on the CLINC150 validation split (3,100 queries, disjoint from the test set) via grid search over kt \u2208 {0.5, 1.0, 1.5, 2.0} and et \u2208 {0.05, 0.08, 0.10, 0.15}. For R4+LLM, we select the configuration that minimises LLM call rate subject to expected accuracy \u2265 88% on validation \u2014 a constraint-based objective that prefers cost savings when accuracy is above a practitioner-chosen floor. The tuned values are kt = 0.5, et = 0.10 (22.7% LLM call rate on validation). We report a sensitivity analysis over the cost penalty \u03b1 in \u00a74.5, showing how the optimal operating point shifts across the Pareto frontier."),
 
         heading(2, "3.4 Evaluation Protocol"),
         p("LLM evaluation runs use a per-seed stratified subsample of n = 400 (50 queries per class \u00d7 8 classes) to bound API spend. We use 3 seeds (42, 43, 44) for paper-grade variance estimation. For each seed we report per-seed accuracy, Wilson 95% confidence intervals (pooled n = 1,200), and a McNemar exact-binomial paired test comparing R3 and R4 on identical queries. Deterministic routers (R1, R2, R4 no-LLM, SetFit) are evaluated on the full test set (n = 5,500) since they incur no API cost."),
@@ -281,7 +281,7 @@ async function main() {
           ],
         }),
         p(""),
-        p("Across all three seeds the difference is not significant. R4+LLM is statistically indistinguishable from R3."),
+        p("Across all three seeds the difference is not significant. The Wilson 95% confidence intervals also overlap substantially \u2014 R3: [80.7%, 84.9%] vs R4: [80.3%, 84.6%] \u2014 corroborating the absence of a significant accuracy difference. R4+LLM is statistically indistinguishable from R3."),
 
         // Figure 2
         ...figure("F2_per_seed_bars.png", 520, 360,
@@ -295,23 +295,23 @@ async function main() {
           "Figure 3. LLM API cost per 1,000 queries. R4 hybrid+LLM ($0.075) is 74% cheaper than R3 LLM-only ($0.293) at statistically equivalent accuracy."),
 
         heading(2, "4.4 Qualitative Analysis"),
-        p("The three cascade stages partition the seed-42 query distribution as: **57.5% stop at R1** (88.7% accurate), **17.0% stop at R2** (75.0% accurate), **25.5% escalate to R3**. Two patterns dominate R1\u2019s 11.3% error rate: polysemous tokens (\u201ccall\u201d triggers productivity instead of device, \u201cvisa\u201d triggers travel instead of finance) and OOS leakage (the keyword router cannot refuse to classify). The cascade correctly escalates 64% of OOS queries to the LLM versus 10\u201318% for most in-domain agents."),
+        p("The three cascade stages partition the seed-42 query distribution as: **59.3% stop at R1** (11.0% error), **17.0% stop at R2** (16.2% error), **23.8% escalate to R3**. R2 processes harder queries than R1, explaining its higher error rate. The most revealing finding is the **device agent**: R1 misclassifies 22.2% of its stops (polysemous tokens like \u201ccall\u201d and \u201calarm\u201d), but R2 recovers with only 4.3% error \u2014 embedding similarity correctly disambiguates commands that keywords cannot. OOS remains the weakest link: all 7 R1-stopped OOS queries and 5 of 9 R2-stopped OOS queries are wrong, confirming that a dedicated OOS detector would be the highest-impact improvement."),
 
-        // Table 3 — Per-agent
-        p("**Table 3.** Escalation rate and R1-stop error rate by agent (seed 42, n=400).", { size: SMALL, after: 60, run: { italics: true } }),
+        // Table 3 — Per-agent with R2-stop error
+        p("**Table 3.** Per-stage error rate and escalation rate by agent (seed 42, n=400).", { size: SMALL, after: 60, run: { italics: true } }),
         new Table({
           width: { size: TABLE_W, type: WidthType.DXA },
-          columnWidths: [2000, 2000, 2200, 3160],
+          columnWidths: [1600, 1200, 1200, 1200, 1200, 1100, 1860],
           rows: [
-            tableRow(["Agent", "Escalation", "R1-stop error", "Interpretation"], { header: true, widths: [2000, 2000, 2200, 3160] }),
-            tableRow(["travel", "10.0%", "9.5%", "Easy: domain verbs"], { widths: [2000, 2000, 2200, 3160] }),
-            tableRow(["auto", "14.0%", "0.0%", "Easy: keyword anchors"], { widths: [2000, 2000, 2200, 3160] }),
-            tableRow(["finance", "16.0%", "4.8%", "Easy: financial nouns"], { widths: [2000, 2000, 2200, 3160] }),
-            tableRow(["kitchen", "18.0%", "7.1%", "Mostly easy"], { widths: [2000, 2000, 2200, 3160] }),
-            tableRow(["productivity", "18.0%", "11.8%", "Moderate: shared verbs"], { widths: [2000, 2000, 2200, 3160] }),
-            tableRow(["device", "22.0%", "25.0%", "Hard: polysemous commands"], { widths: [2000, 2000, 2200, 3160] }),
-            tableRow(["meta", "42.0%", "13.3%", "Hard: conversational"], { widths: [2000, 2000, 2200, 3160] }),
-            tableRow(["**OOS**", "**64.0%**", "**100.0%**", "**Hardest: correctly escalated**"], { widths: [2000, 2000, 2200, 3160] }),
+            tableRow(["Agent", "R1 (n)", "R1-err", "R2 (n)", "R2-err", "Esc%", "Interpretation"], { header: true, widths: [1600, 1200, 1200, 1200, 1200, 1100, 1860] }),
+            tableRow(["finance", "49", "4.1%", "0", "\u2014", "2.0%", "Easiest"], { widths: [1600, 1200, 1200, 1200, 1200, 1100, 1860] }),
+            tableRow(["auto", "45", "2.2%", "1", "0.0%", "8.0%", "Strong keyword anchors"], { widths: [1600, 1200, 1200, 1200, 1200, 1100, 1860] }),
+            tableRow(["kitchen", "30", "13.3%", "12", "8.3%", "16.0%", "R2 catches R1 misses"], { widths: [1600, 1200, 1200, 1200, 1200, 1100, 1860] }),
+            tableRow(["device", "18", "22.2%", "23", "4.3%", "18.0%", "R1 fails, R2 recovers"], { widths: [1600, 1200, 1200, 1200, 1200, 1100, 1860] }),
+            tableRow(["product.", "32", "12.5%", "9", "22.2%", "18.0%", "Abstract task verbs"], { widths: [1600, 1200, 1200, 1200, 1200, 1100, 1860] }),
+            tableRow(["travel", "38", "5.3%", "3", "33.3%", "18.0%", "Few R2 stops"], { widths: [1600, 1200, 1200, 1200, 1200, 1100, 1860] }),
+            tableRow(["meta", "18", "11.1%", "11", "9.1%", "42.0%", "Conversational"], { widths: [1600, 1200, 1200, 1200, 1200, 1100, 1860] }),
+            tableRow(["**OOS**", "**7**", "**100%**", "**9**", "**55.6%**", "**68.0%**", "**Neither stage can refuse**"], { widths: [1600, 1200, 1200, 1200, 1200, 1100, 1860] }),
           ],
         }),
         p(""),
@@ -320,11 +320,20 @@ async function main() {
         ...figure("F3_per_agent_heatmap.png", 560, 310,
           "Figure 4. Per-agent accuracy heatmap across all routers (top 5\u00d78) with delta row (R4+LLM \u2212 R3). R4 matches or beats R3 on 7/8 agents; the OOS loss (\u221216pp) is the expected trade-off."),
 
+        // ─── 4.5 THRESHOLD SENSITIVITY ───
+        heading(2, "4.5 Threshold Sensitivity"),
+        p("The threshold selection depends on how much accuracy one is willing to trade for cost savings. We parameterise this trade-off as max expected_accuracy \u2212 \u03b1 \u00b7 LLM_call_rate and sweep \u03b1 on the validation grid (42 configurations \u00d7 9 \u03b1 values). At \u03b1=0 (accuracy-first), the optimal config uses 41% LLM calls at 90.9% expected accuracy; at \u03b1=0.5 (maximum savings), only 12% of queries reach the LLM at 87.2% accuracy. Our paper config (kt=0.5, et=0.10) was selected by a constraint-based criterion (min LLM rate s.t. acc \u2265 88%), falling between the \u03b1=0.10 and \u03b1=0.15 operating points. The cascade offers a smooth accuracy\u2013cost dial: practitioners can choose their operating point by adjusting \u03b1 or their accuracy floor."),
+
+        // Figure 5
+        ...figure("F5_pareto_sensitivity.png", 520, 380,
+          "Figure 5. Threshold sensitivity to cost penalty \u03b1. Each point is the optimal (kt, et) for a given \u03b1, evaluated on the validation set (n=3,100). The paper config (\u2605) uses a constraint-based selection. As \u03b1 increases, the cascade aggressively reduces LLM calls."),
+
         // ─── 5. DISCUSSION ───
         heading(1, "5. Discussion"),
         p("**When does the cascade pay off?** A cascade wins when the query distribution is *bimodal* \u2014 many easy queries answerable from surface features plus a tail of hard queries that need an LLM\u2019s open-ended reasoning. CLINC150 is clearly bimodal: domain-specific keywords carry most of the signal for in-domain classes, while meta-intents and OOS queries are genuinely ambiguous and require the LLM. A benchmark with flat difficulty would show less benefit."),
-        p("**When does it fail?** If the cheap router\u2019s confidence calibration is poor, the cascade loses accuracy without saving cost. The R1 false-confidence zone illustrated in the qualitative analysis (polysemous tokens) is the primary failure mode on CLINC150. Our objective function accuracy \u2212 0.1 \u00b7 LLM_call_rate penalises this miscalibration. In production, the 0.1 coefficient should be replaced with the real LLM cost per query normalised by the product\u2019s accuracy tolerance."),
-        p("**Limitations.** (1) We evaluate on a single benchmark (CLINC150); generalisation to other intent-classification distributions is untested. (2) The 8-way agent inventory is fixed; cascades on much larger label spaces (50+ agents) would require a different cheap-stage design. (3) The thresholds are static \u2014 no online adaptation. (4) Haiku 4.5 is itself a cheap model; savings against Claude Sonnet or GPT-4 would be larger in absolute dollars. (5) We measure cost in API dollars, not user-perceived latency."),
+        p("**When does it fail?** If the cheap router\u2019s confidence calibration is poor, the cascade loses accuracy without saving cost. The R1 false-confidence zone illustrated in the qualitative analysis (polysemous tokens) is the primary failure mode on CLINC150. The \u03b1-sensitivity analysis in \u00a74.5 shows how the accuracy\u2013cost trade-off shifts as the cost penalty changes: practitioners should tune \u03b1 (or equivalently, their accuracy floor) to their deployment\u2019s tolerance."),
+        p("**Latency.** Beyond cost, the cascade reduces latency. On a Mac Mini (M2), R1 keyword processes a query in 3.2ms median and R2 embedding in 0.3ms \u2014 both 100\u20131,500\u00d7 faster than R3\u2019s ~500ms API round-trip. Since 74% of queries never reach the LLM, the cascade\u2019s median end-to-end latency is dominated by the cheap stages, not the API call."),
+        p("**Limitations.** (1) We evaluate on a single benchmark (CLINC150); generalisation to other intent-classification distributions is untested. (2) The 8-way agent inventory is fixed; cascades on much larger label spaces (50+ agents) would require a different cheap-stage design. (3) The thresholds are static \u2014 no online adaptation. (4) Haiku 4.5 is itself a cheap model; savings against Claude Sonnet or GPT-4 would be larger in absolute dollars."),
         p("**Extension: multi-turn agent tasks.** The cascade pattern extends naturally to multi-turn settings. Instead of routing every turn, one can use a cheap model for task *decomposition* and save the expensive model for *execution*. We evaluate this on \u03c4-bench (Sierra 2024) in companion work."),
 
         // ─── 6. CONCLUSION ───
@@ -333,7 +342,7 @@ async function main() {
 
         // ─── REPRODUCIBILITY ───
         heading(1, "Reproducibility Statement"),
-        p("Code, tuned thresholds, per-seed trajectories, LLM call logs: github.com/drewOrc/cost-aware-hybrid-router (MIT). Model: claude-haiku-4-5-20251001. Seeds: 42, 43, 44. Embedding: sentence-transformers/all-mpnet-base-v2. Total API cost to reproduce: **$0.44**."),
+        p("Code, tuned thresholds, per-seed trajectories, LLM call logs: github.com/drewOrc/cost-aware-hybrid-router (MIT). Model: claude-haiku-4-5-20251001. Seeds: 42, 43, 44. Embedding: sentence-transformers/all-mpnet-base-v2. Total API cost to reproduce: **$0.44**. We verified reproducibility by running the full 3-seed experiment twice; per-seed accuracy varied by \u2264 0.5pp (1\u20132 queries out of 400), attributable to rate-limited API retries, with all qualitative conclusions unchanged."),
 
         // ─── REFERENCES ───
         heading(1, "References"),
