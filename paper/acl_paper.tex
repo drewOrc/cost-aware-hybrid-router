@@ -224,25 +224,29 @@ Our paper configuration was selected by a constraint-based criterion (min LLM ra
 \subsection{Alternative Cheap Stages}
 \label{sec:cheapstage}
 
-We compare three R2 candidates: (1)~TF-IDF nearest-centroid (our default), (2)~all-MiniLM-L6-v2 (22M-parameter sentence encoder, 384d), and (3)~all-mpnet-base-v2 \citep{reimers2019sentencebert} (109M parameters, 768d). For each model we report standalone accuracy on the full test set ($n$=5,500) and oracle-cascade accuracy (R1$\to$R2$\to$perfect-LLM) using the same thresholds ($k_t$=0.5, $e_t$=0.10).
-
-\begin{center}
-\small
-\captionof{table}{Cheap-stage comparison (full test set).}
-\label{tab:cheapstage}
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lcrrr@{}}
-\toprule
-\textbf{R2 model} & \textbf{R2 Acc} & \textbf{ms/q} & \textbf{Cascade} & \textbf{LLM\%} \\
-\midrule
-TF-IDF (ours) & 74.0\% & 0.3 & \textbf{86.7\%} & 26.0 \\
-MiniLM-L6 & 73.3\% & 6.2 & 75.6\% & 1.4 \\
-MPNet-base & \textbf{76.2\%} & 17.1 & 77.2\% & 1.3 \\
-\bottomrule
-\end{tabular}
-\end{center}
+We compare three R2 candidates: (1)~TF-IDF nearest-centroid (our default), (2)~all-MiniLM-L6-v2 (22M-parameter sentence encoder, 384d), and (3)~all-mpnet-base-v2 \citep{reimers2019sentencebert} (109M parameters, 768d). For each model we report standalone accuracy on the full test set ($n$=5,500) and oracle-cascade accuracy (R1$\to$R2$\to$perfect-LLM) using the same thresholds ($k_t$=0.5, $e_t$=0.10). Results appear in Table~\ref{tab:cheapstage}.
 
 Counterintuitively, the strongest standalone model (MPNet, 76.2\%) produces the \emph{worst} cascade. The reason is confidence calibration: neural encoders assign high cosine similarities ($>$0.3) even to misclassified queries, so the $e_t$=0.10 gate rarely triggers and only 1.3\% of queries reach the LLM. TF-IDF similarities are lower-magnitude (typically 0.02--0.25), giving the threshold real discriminative power: 26\% of queries---those the model is genuinely uncertain about---are escalated, and the LLM corrects most of them. This confirms that in a confidence-gated cascade, \textbf{calibration of the cheap stage matters more than its raw accuracy}.
+
+\end{multicols}
+
+\begin{table}[h]
+\centering
+\small
+\caption{Cheap-stage comparison on full test set ($n$=5,500). Cascade uses oracle-LLM (upper bound).}
+\label{tab:cheapstage}
+\begin{tabular}{@{}lcrrrr@{}}
+\toprule
+\textbf{R2 model} & \textbf{Params} & \textbf{R2 Acc} & \textbf{ms/q} & \textbf{Cascade} & \textbf{LLM\%} \\
+\midrule
+TF-IDF (ours) & 10K feat. & 74.0\% & 0.3 & \textbf{86.7\%} & 26.0 \\
+all-MiniLM-L6-v2 & 22M & 73.3\% & 6.2 & 75.6\% & 1.4 \\
+all-mpnet-base-v2 & 109M & \textbf{76.2\%} & 17.1 & 77.2\% & 1.3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{multicols}{2}
 
 % ═══════════════════════════════════════════════════════════════
 \section{Discussion}
