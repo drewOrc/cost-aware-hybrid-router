@@ -119,34 +119,33 @@ R3 and R4 API costs are measured directly from Anthropic response metadata (inpu
 
 Table~\ref{tab:main} shows the headline numbers across all routers. The two hero rows have overlapping 95\% confidence intervals. The no-LLM cascade R4-no-LLM reaches only 74.9\%, so the LLM escalation branch is doing \emph{real work} on the 26\% of queries it sees---the question is whether that work needs to happen on every query.
 
-\begin{table}[H]
-\centering
+\begin{center}
 \small
-\caption{Main results on CLINC150. Bold rows are the primary comparison.}
+\captionof{table}{Main results on CLINC150. Bold = primary comparison.}
 \label{tab:main}
-\begin{tabular}{@{}lcccc@{}}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lclrr@{}}
 \toprule
-\textbf{Router} & \textbf{Acc.} & \textbf{Wilson CI} & \textbf{LLM\%} & \textbf{Cost/q} \\
+\textbf{Router} & \textbf{Acc.} & \textbf{Wilson CI} & \textbf{LLM} & \textbf{\$/q} \\
 \midrule
-R1 keyword & 64.8\% & --- & 0\% & \texttildelow\$0 \\
-R2 embedding & 74.0\% & --- & 0\% & \texttildelow\$0 \\
-SetFit baseline & 70.2\% & --- & 0\% & \texttildelow\$0 \\
-R4 no-LLM & 74.9\% & --- & 0\% & \texttildelow\$0 \\
+R1 keyword & 64.8 & --- & 0 & $\sim$0 \\
+R2 embed. & 74.0 & --- & 0 & $\sim$0 \\
+SetFit & 70.2 & --- & 0 & $\sim$0 \\
+R4 no-LLM & 74.9 & --- & 0 & $\sim$0 \\
 \midrule
-\textbf{R3 LLM-only} & \textbf{82.9\%} & [80.7, 84.9] & 100\% & \$2.9\text{e-4} \\
-\textbf{R4+LLM} & \textbf{82.6\%} & [80.3, 84.6] & 26.1\% & \$7.5\text{e-5} \\
+\textbf{R3 LLM} & \textbf{82.9} & [80.7, 84.9] & 100 & 2.9e-4 \\
+\textbf{R4+LLM} & \textbf{82.6} & [80.3, 84.6] & 26 & 7.5e-5 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{center}
 
 \subsection{Statistical Significance}
 
 McNemar paired exact-binomial tests on R3 vs R4+LLM, per seed ($n = 400$ each):
 
-\begin{table}[H]
-\centering
+\begin{center}
 \small
-\caption{McNemar paired tests per seed.}
+\captionof{table}{McNemar paired tests per seed.}
 \label{tab:mcnemar}
 \begin{tabular}{@{}cccc@{}}
 \toprule
@@ -157,7 +156,7 @@ McNemar paired exact-binomial tests on R3 vs R4+LLM, per seed ($n = 400$ each):
 44 & $+$0.75\,pp & 0.755 & No \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{center}
 
 Across all three seeds the difference is not significant. The Wilson 95\% CIs also overlap substantially---R3: [80.7\%, 84.9\%] vs R4: [80.3\%, 84.6\%]---corroborating the absence of a significant accuracy difference.
 
@@ -167,15 +166,18 @@ Per-seed, R3 costs \$0.117 in API usage (400 calls $\times$ Haiku~4.5 pricing), 
 
 \subsection{Qualitative Analysis}
 
-The three cascade stages partition the seed-42 query distribution as: \textbf{59.3\% stop at R1} (11.0\% error), \textbf{17.0\% stop at R2} (16.2\% error), \textbf{23.8\% escalate to R3}. R2 processes harder queries than R1, explaining its higher error rate.
+The three cascade stages partition the seed-42 query distribution as: \textbf{59.3\% stop at R1} (11.0\% error), \textbf{17.0\% stop at R2} (16.2\% error), \textbf{23.8\% escalate to R3}. R2 processes harder queries than R1, explaining its higher error rate. Table~\ref{tab:perstage} breaks this down by agent.
 
-\begin{table}[H]
+The most revealing finding is the \textbf{device agent}: R1 misclassifies 22.2\% of its stops (polysemous tokens like ``call'' and ``alarm''), but R2 recovers with only 4.3\% error---embedding similarity correctly disambiguates commands that keywords cannot. OOS remains the weakest link at both stages: all 7 R1-stopped OOS queries and 5 of 9 R2-stopped OOS queries are wrong, confirming that a dedicated OOS detector would be the highest-impact improvement.
+
+\end{multicols}
+
+\begin{table}[h]
 \centering
 \small
-\caption{Per-stage error rate and escalation by agent (seed 42).}
+\caption{Per-stage error rate and escalation by agent (seed 42, $n=400$).}
 \label{tab:perstage}
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lrrrrrr@{}}
+\begin{tabular}{@{}lrrrrr@{}}
 \toprule
 \textbf{Agent} & \textbf{R1\,n} & \textbf{R1-err} & \textbf{R2\,n} & \textbf{R2-err} & \textbf{Esc\%} \\
 \midrule
@@ -191,17 +193,16 @@ meta & 18 & 11.1\% & 11 & 9.1\% & 42.0\% \\
 \end{tabular}
 \end{table}
 
-The most revealing finding is the \textbf{device agent}: R1 misclassifies 22.2\% of its stops (polysemous tokens like ``call'' and ``alarm''), but R2 recovers with only 4.3\% error---embedding similarity correctly disambiguates commands that keywords cannot. OOS remains the weakest link at both stages: all 7 R1-stopped OOS queries and 5 of 9 R2-stopped OOS queries are wrong, confirming that a dedicated OOS detector would be the highest-impact improvement.
+\begin{multicols}{2}
 
 \subsection{Threshold Sensitivity}
 \label{sec:sensitivity}
 
 The threshold selection depends on how much accuracy one is willing to trade for cost savings. We parameterise this trade-off as $\max\; \text{acc} - \alpha \cdot \text{LLM\_rate}$ and sweep $\alpha$ on the validation grid (42 configurations $\times$ 9 $\alpha$ values).
 
-\begin{table}[H]
-\centering
+\begin{center}
 \small
-\caption{Pareto operating points across $\alpha$ values.}
+\captionof{table}{Pareto operating points across $\alpha$ values.}
 \label{tab:pareto}
 \begin{tabular}{@{}lccc@{}}
 \toprule
@@ -215,7 +216,7 @@ $\boldsymbol{\alpha}$ \textbf{range} & \textbf{Best $(k_t, e_t)$} & \textbf{Acc}
 \textit{Paper config} & (0.5, 0.10) & 88.5\% & 22.7\% \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{center}
 
 Our paper configuration was selected by a constraint-based criterion (min LLM rate s.t.\ acc $\geq$ 88\%), falling between $\alpha$=0.10 and $\alpha$=0.15. The cascade offers a smooth accuracy--cost dial: practitioners can choose their operating point by adjusting $\alpha$ or their accuracy floor.
 
