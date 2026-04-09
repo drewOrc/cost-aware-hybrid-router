@@ -305,10 +305,12 @@ def main():
             "accuracy": aggregate_seeds(r4_accs),
             "cost_usd": aggregate_seeds(r4_costs),
         },
-        "wilson_ci_R3": wilson_ci(seed_results["R3_llm"][0]["correct"],
-                                   seed_results["R3_llm"][0]["total"]),
-        "wilson_ci_R4LLM": wilson_ci(seed_results["R4_hybrid_with_llm"][0]["correct"],
-                                      seed_results["R4_hybrid_with_llm"][0]["total"]),
+        "wilson_ci_R3": wilson_ci(
+            sum(s["correct"] for s in seed_results["R3_llm"]),
+            sum(s["total"] for s in seed_results["R3_llm"])),
+        "wilson_ci_R4LLM": wilson_ci(
+            sum(s["correct"] for s in seed_results["R4_hybrid_with_llm"]),
+            sum(s["total"] for s in seed_results["R4_hybrid_with_llm"])),
         "mcnemar_significant_count": sum(1 for m in seed_results["mcnemar_r4llm_vs_r3"]
                                          if m["significant_at_0.05"]),
         "n_seeds": len(args.seeds),

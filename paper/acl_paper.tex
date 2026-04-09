@@ -70,6 +70,9 @@ The CLINC150 benchmark \citep{larson2019evaluation} comprises 150 in-domain inte
 \paragraph{Cost-aware LLM cascades.}
 FrugalGPT \citep{chen2023frugalgpt} introduced the general cascade pattern (try a cheaper model first, escalate to a more expensive model only when the cheap model's confidence is low) on single-turn question answering tasks, reporting cost reductions of up to 98\% at matched accuracy. \citet{arora2024intent} recently evaluated SetFit and seven LLMs on CLINC150, proposing an uncertainty-based routing strategy that escalates low-confidence SetFit predictions to an LLM. Our cascade differs in two ways: (i)~it begins with a zero-parameter keyword stage that resolves 59\% of queries before any model runs, and (ii)~the cheap-stage comparison (\S\ref{sec:cheapstage}) shows that \emph{confidence calibration}, not standalone accuracy, determines cascade effectiveness, a finding their work does not explore.
 
+\paragraph{Learned routers and model selection.}
+Hybrid~LLM \citep{ding2024hybridllm} trains a router to assign queries to a small or large model based on predicted difficulty, saving up to 40\% of large-model calls at matched quality (ICLR 2024). RouteLLM \citep{ong2025routellm} extends this with preference-data training, reporting over 85\% cost reduction on MT-Bench (ICLR 2025). AutoMix \citep{madaan2024automix} uses few-shot self-verification to decide whether to escalate from a small to a large model, achieving 50\%+ cost reduction. \citet{dekoninck2024unified} provide a theoretical foundation by deriving optimal strategies for both routing and cascading and unifying them into a single framework. FORC \citep{sakota2024forc} takes a meta-modeling approach, predicting per-query cost and performance without running candidate LLMs. Two recent surveys catalog the growing design space: \citet{survey2025routing} provides a taxonomy of routing strategies for resource optimisation, while \citet{survey2026dynamic} covers dynamic cascading specifically. Our cascade differs from these learned routers in that it requires \emph{no training data} beyond the existing agent inventory: the confidence signals come from the keyword and embedding stages themselves, making it deployable without the preference-data collection or quality-annotation steps that Hybrid~LLM, RouteLLM, and AutoMix require.
+
 \paragraph{Agent-routing systems.}
 Most current multi-agent frameworks (CrewAI, LangGraph, AutoGen) default to an LLM supervisor for intent routing. Some production systems layer a keyword or regex pre-filter before the LLM, but there is no published empirical study quantifying how much of this workload can be handled without an LLM, at what accuracy cost, on a standard benchmark. Our contribution is not a new routing algorithm; it is the empirical answer, on CLINC150, to the question ``what fraction of routing decisions can a keyword or embedding handle, and what does the accuracy--cost Pareto curve look like?''
 
@@ -158,7 +161,7 @@ McNemar paired exact-binomial tests on R3 vs R4+LLM, per seed ($n = 400$ each):
 \end{tabular}
 \end{center}
 
-Across all three seeds the difference is not significant. The Wilson 95\% CIs also overlap substantially (R3: [80.7\%, 84.9\%] vs R4: [80.3\%, 84.6\%]), corroborating the absence of a significant accuracy difference.
+Across all three seeds the difference is not significant. The Wilson 95\% CIs also overlap substantially (R3: [80.7\%, 84.9\%] vs R4: [80.3\%, 84.6\%]), corroborating the absence of a significant accuracy difference. The pooled Cohen's $h = 0.009$ (negligible effect), further confirming that the overall accuracy gap is practically zero.
 
 \subsection{Cost Savings}
 
@@ -169,6 +172,8 @@ Per-seed, R3 costs \$0.117 in API usage (400 calls $\times$ Haiku~4.5 pricing), 
 The three cascade stages partition the seed-42 query distribution as: \textbf{59.3\% stop at R1} (11.0\% error), \textbf{17.0\% stop at R2} (16.2\% error), \textbf{23.8\% escalate to R3}. R2 processes harder queries than R1, explaining its higher error rate. Table~\ref{tab:perstage} breaks this down by agent.
 
 The most revealing finding is the \textbf{device agent}: R1 misclassifies 22.2\% of its stops (polysemous tokens like ``call'' and ``alarm''), but R2 recovers with only 4.3\% error. Embedding similarity correctly disambiguates commands that keywords cannot. OOS remains the weakest link at both stages: all 7 R1-stopped OOS queries and 5 of 9 R2-stopped OOS queries are wrong, confirming that a dedicated OOS detector would be the highest-impact improvement.
+
+Across all three seeds (pooled $n_{\text{oos}} = 150$), the cascade's OOS accuracy is 48.0\% versus R3's 58.0\% ($\Delta = -10$\,pp, Cohen's $h = 0.20$, small effect). Notably, on \emph{in-domain} queries the cascade matches or slightly exceeds R3 (87.5\% vs 86.5\%, $h = 0.03$, negligible). The accuracy cost of the cascade is therefore entirely concentrated in OOS handling, suggesting that adding a calibrated OOS pre-filter would eliminate the cascade's primary weakness without sacrificing its 74\% cost advantage on in-domain traffic.
 
 \end{multicols}
 
@@ -259,11 +264,13 @@ A cascade wins when the query distribution is \emph{bimodal}: many easy queries 
 Beyond cost, the cascade reduces latency. On a Mac Mini (M2), R1 keyword processes a query in 3.2\,ms median and R2 embedding in 0.3\,ms, both 100--1,500$\times$ faster than R3's $\sim$500\,ms API round-trip. Since 74\% of queries never reach the LLM, the cascade's median end-to-end latency is dominated by the cheap stages, not the API call.
 
 \paragraph{Limitations.}
-(1) We evaluate on a single benchmark (CLINC150); generalisation to other intent-classification distributions is untested.
+(1) We evaluate on a single English-only, single-turn benchmark (CLINC150); generalisation to multilingual or multi-turn routing is untested.
 (2) The 8-way agent inventory is fixed; cascades on much larger label spaces (50+ agents) would require a different cheap-stage design.
 (3) The thresholds are static; there is no online adaptation.
 (4) Haiku~4.5 is itself a cheap model; savings against Claude Sonnet or GPT-4 would be larger in absolute dollars.
 (5) The cheap-stage comparison uses fixed thresholds tuned for TF-IDF; re-tuning per model would give a fairer comparison but is outside the scope of this workshop paper.
+(6) R1's keyword lists are hand-crafted for CLINC150's intent names; deploying to a new domain requires rebuilding them, a non-trivial transfer cost that our evaluation does not measure.
+(7) LLM results are measured on a 400-query stratified subsample per seed; while pooled $n = 1{,}200$ gives tight CIs, the subsample's class balance may not reflect real-world query distributions.
 
 \paragraph{Extension: multi-turn agent tasks.}
 The cascade pattern extends naturally to multi-turn settings. Instead of routing every turn, one can use a cheap model for task \emph{decomposition} and save the expensive model for \emph{execution}. We evaluate this on $\tau$-bench \citep{sierra2024taubench} in companion work.
@@ -316,6 +323,41 @@ Sierra. 2024.
 Lewis Tunstall, Nils Reimers, Unso~Eun~Seo Jo, Luke Bates, Daniel Korat, Moshe Wasserblat, and Oren Pereg. 2022.
 \newblock Efficient Few-Shot Learning Without Prompts.
 \newblock \emph{arXiv preprint arXiv:2209.11055}.
+
+\bibitem[Ong et~al.(2025)]{ong2025routellm}
+Isaac Ong, Amjad Almahairi, Vincent Wu, Wei-Lin Chiang, Tianhao Wu, Joseph~E. Gonzalez, M~Waleed Kadous, and Ion Stoica. 2025.
+\newblock {RouteLLM}: Learning to Route {LLMs} with Preference Data.
+\newblock In \emph{Proceedings of ICLR 2025}.
+
+\bibitem[Madaan et~al.(2024)]{madaan2024automix}
+Aman Madaan, Pranjal Aggarwal, Ankit Anand, Srividya~Pranavi Potharaju, Swaroop Mishra, Pei Zhou, Aditya Gupta, Dheeraj Rajagopal, Karthik Kappaganthu, Yiming Yang, Shyam Upadhyay, Manaal Faruqui, and Mausam. 2024.
+\newblock {AutoMix}: Automatically Mixing Language Models.
+\newblock \emph{arXiv preprint arXiv:2310.12963}.
+
+\bibitem[{\v{S}}akota et~al.(2024)]{sakota2024forc}
+Marija {\v{S}}akota, Maxime Peyrard, and Robert West. 2024.
+\newblock Fly-Swat or Cannon? {Cost-Effective} Language Model Choice via Meta-Modeling.
+\newblock In \emph{Proceedings of WSDM 2024}, pages 799--807.
+
+\bibitem[Strau{\ss} et~al.(2025)]{survey2025routing}
+Niklas Strau{\ss}, Matthias Feurer, and Noor Awad. 2025.
+\newblock Doing More with Less: A Survey on Routing Strategies for Resource Optimisation in {LLM}-Based Systems.
+\newblock \emph{arXiv preprint arXiv:2502.00409}.
+
+\bibitem[Li et~al.(2026)]{survey2026dynamic}
+Zhiyuan Li et~al. 2026.
+\newblock Dynamic Model Routing and Cascading for Efficient {LLM} Inference: A Survey.
+\newblock \emph{arXiv preprint arXiv:2603.04445}.
+
+\bibitem[Ding et~al.(2024)]{ding2024hybridllm}
+Dujian Ding, Ankur Mallick, Chi Wang, Robert Sim, Subhabrata Mukherjee, Victor R{\"u}hle, Laks V.~S. Lakshmanan, and Ahmed~Hassan Awadallah. 2024.
+\newblock {Hybrid LLM}: Cost-Efficient and Quality-Aware Query Routing.
+\newblock In \emph{Proceedings of ICLR 2024}.
+
+\bibitem[Dekoninck et~al.(2025)]{dekoninck2024unified}
+Jasper Dekoninck, Maximilian Baader, and Martin Vechev. 2025.
+\newblock A Unified Approach to Routing and Cascading for {LLMs}.
+\newblock In \emph{Proceedings of ICML 2025}.
 \end{thebibliography}
 
 \end{multicols}

@@ -53,11 +53,11 @@ git clone https://github.com/drewOrc/cost-aware-hybrid-router.git
 cd cost-aware-hybrid-router
 pip install -r requirements.txt
 
-# Download CLINC150
+# Download CLINC150 (required before any evaluation)
 python download_data.py
 
-# Run zero-cost routers (R1, R2, R4 no-LLM, SetFit)
-PYTHONPATH=. python3 src/evaluate.py --no-llm
+# Run zero-cost routers (R1, R2, R4 no-LLM) — no API key needed
+PYTHONPATH=. python3 src/evaluate.py --use-tuned-thresholds
 
 # Run LLM evaluation (requires Anthropic API key, ~$0.44 total)
 export ANTHROPIC_API_KEY=sk-ant-...
@@ -69,6 +69,10 @@ PYTHONPATH=. python3 src/merge_seeds.py
 
 # Generate paper-grade figures
 python paper/figures.py
+
+# Optional: reproduce SetFit baseline (requires extra dependencies)
+# pip install setfit sentence-transformers
+# PYTHONPATH=. python3 src/evaluate.py --setfit --use-tuned-thresholds
 ```
 
 ---
@@ -84,11 +88,11 @@ python paper/figures.py
 
 ## Paper
 
-Workshop paper draft and publication-quality figures are in [`paper/`](paper/):
+Workshop paper (ACL two-column format) and publication-quality figures are in [`paper/`](paper/):
 
-- [`Cost-Aware_Hybrid_Routing_Paper.pdf`](paper/Cost-Aware_Hybrid_Routing_Paper.pdf) — Submission-ready PDF
-- [`draft_v0.md`](paper/draft_v0.md) — Markdown source with inline figures
-- [`figures.py`](paper/figures.py) — Reproducible figure generator (4 figures, 300 DPI)
+- [`acl_paper.pdf`](paper/acl_paper.pdf) — Submission-ready PDF (compiled from LaTeX)
+- [`acl_paper.tex`](paper/acl_paper.tex) — LaTeX source
+- [`figures.py`](paper/figures.py) — Reproducible figure generator (5 figures, 300 DPI)
 
 ![Per-agent heatmap](paper/figures/F3_per_agent_heatmap.png)
 
@@ -118,10 +122,10 @@ cost-aware-hybrid-router/
 │   ├── metrics_merged.json    ← primary results file
 │   └── figures/
 └── paper/
+    ├── acl_paper.tex/pdf
     ├── Cost-Aware_Hybrid_Routing_Paper.docx/pdf
-    ├── draft_v0.md
     ├── figures.py
-    └── figures/F1-F4.png
+    └── figures/F1-F5.png
 ```
 
 ---
