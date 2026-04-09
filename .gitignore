@@ -32,6 +32,16 @@ DEVLOG.md
 RUN_UPGRADED.md
 commit_and_push.sh
 
+# LaTeX build artifacts
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.bbl
+paper/*.blg
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.synctex.gz
+
 # LibreOffice / temp lock files
 .~lock.*
 *.tmp
