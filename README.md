@@ -17,7 +17,7 @@ Production agent frameworks (AutoGen, CrewAI, LangGraph) typically route every q
 | Router | Accuracy | LLM Call Rate | Cost / seed |
 |---|---|---|---|
 | R1 Keyword | 64.8% | 0% | $0 |
-| R2 Embedding (MPNet centroid) | 74.0% | 0% | $0 |
+| R2 Embedding (TF-IDF centroid) | 74.0% | 0% | $0 |
 | SetFit baseline (16-shot) | 70.2% | 0% | $0 |
 | R4 Cascade no-LLM | 74.9% | 0% | $0 |
 | R3 LLM-only (Haiku 4.5) | **82.9% ± 0.6pp** | 100% | $0.117 |
