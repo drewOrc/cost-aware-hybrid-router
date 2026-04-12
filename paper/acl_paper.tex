@@ -16,7 +16,6 @@
 \usepackage{hyperref}
 \usepackage{natbib}
 \usepackage{caption}
-\usepackage{subcaption}
 \usepackage{enumitem}
 \usepackage{float}
 
@@ -207,7 +206,7 @@ The threshold selection depends on how much accuracy one is willing to trade for
 
 \begin{center}
 \small
-\captionof{table}{Pareto operating points across $\alpha$ values.\footnotemark}
+\captionof{table}{Pareto operating points across $\alpha$ values.\protect\footnotemark}
 \label{tab:pareto}
 \begin{tabular}{@{}lccc@{}}
 \toprule
@@ -285,7 +284,7 @@ On CLINC150, the cascade matches the LLM-only router within 0.4\,pp while cuttin
 \section*{Acknowledgments}
 % ═══════════════════════════════════════════════════════════════
 
-Claude (Anthropic) was used for drafting assistance during writing. All experimental design, implementation, data collection, and analysis were conducted by the author.
+An LLM assistant (Claude, Anthropic) was used for proofreading and stylistic editing of the manuscript. All research design, experiments, analysis, and initial drafting were conducted solely by the author.
 
 % ═══════════════════════════════════════════════════════════════
 \section*{Reproducibility Statement}
