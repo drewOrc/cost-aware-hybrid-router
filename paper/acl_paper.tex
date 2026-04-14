@@ -28,6 +28,7 @@
 \setlength{\parskip}{0pt}
 \setlength{\parindent}{1em}
 \setlist{nosep,leftmargin=1.2em}
+\setlength{\emergencystretch}{3em}
 \captionsetup{font=small,labelfont=bf}
 
 % ─── Title block ─────────────────────────────────────────────
@@ -48,17 +49,17 @@
 \section*{Abstract}
 % ═══════════════════════════════════════════════════════════════
 
-Routing user utterances to the correct task agent is a foundational step in multi-agent LLM systems, and the LLM-as-router pattern has become the default for its accuracy. We ask whether that accuracy is \emph{worth} its cost. On the CLINC150 benchmark (150 intents $\to$ 7 agents + OOS), we compare four routers spanning a 3-order-of-magnitude cost range: (R1) keyword, (R2) embedding-nearest-centroid, (R3) Claude Haiku~4.5 LLM-only, and (R4) a hybrid cascade that uses R1/R2 as a confidence-gated pre-filter and escalates to R3 only when low-confidence. Across 3 seeds $\times$ 400 stratified queries (1,200 pooled), R4 achieves \textbf{82.6\% $\pm$ 1.2pp} accuracy versus R3's \textbf{82.9\% $\pm$ 0.6pp}, statistically indistinguishable by McNemar paired test ($p > 0.37$, overlapping Wilson 95\% CIs), while escalating to the LLM on only \textbf{26.1\%} of queries, yielding a \textbf{74.3\% reduction in LLM cost}. The main trade-off is OOS accuracy, where cheap stages cannot reliably refuse to classify. We release code, tuned thresholds, and per-seed trajectories.\footnote{Code: \url{https://github.com/drewOrc/cost-aware-hybrid-router}}
+In multi-agent LLM systems, user utterances must be routed to the correct task agent as a first step. The common approach is to use an LLM as the router. This choice is accepted for its accuracy, but we ask whether that accuracy justifies its cost. We evaluate four routers on the CLINC150 benchmark (150 intents, 7 agents + OOS): (R1) keyword matching, (R2) TF-IDF nearest-centroid, (R3) Claude Haiku~4.5 LLM-only, and (R4) a hybrid cascade that uses R1 and R2 as confidence-gated pre-filters and escalates to R3 only when confidence is low. Across 3 seeds $\times$ 400 stratified queries (1,200 pooled), R4 achieves \textbf{82.6\% $\pm$ 1.2\,pp} while R3 achieves \textbf{82.9\% $\pm$ 0.6\,pp}. McNemar paired tests show no significant difference ($p > 0.37$, Wilson 95\% CIs overlap). R4 only sends \textbf{26.1\%} of queries to the LLM, which means a \textbf{74.3\%} reduction in LLM API cost. The main weakness is OOS queries, where the cheap stages cannot reliably refuse to classify. Code, thresholds, and per-seed logs are available.\footnote{Code: \url{https://github.com/drewOrc/cost-aware-hybrid-router}}
 
 % ═══════════════════════════════════════════════════════════════
 \section{Introduction}
 % ═══════════════════════════════════════════════════════════════
 
-In production multi-agent LLM systems, every user utterance first visits a \emph{router}: a component that decides which downstream agent (finance, HR, travel, and so on) should handle the request. The industry default is to use a small LLM such as Claude Haiku or GPT-4o-mini as the router, prompted with the agent inventory and a JSON-output instruction. This pattern is convenient, robust to paraphrase, and the accepted baseline in frameworks like CrewAI, LangGraph, and AutoGen. It is also expensive: at production scale, every single user turn incurs an LLM API call \emph{before} the real work begins, and that per-turn cost compounds across thousands of daily conversations.
+In deployed multi-agent LLM systems, each user utterance makes a first hop to a router, a component which decides which downstream agent (finance, HR, travel, etc.) to hand off the request to. The common approach in the industry is to use a compact LLM like Claude Haiku or GPT-4o-mini as a router, supplying it with the agent inventory alongside an instruction for JSON-output. It is convenient and robust to paraphrasing, and is the accepted default in CrewAI, LangGraph, and AutoGen. But it is costly: at production scale, every user turn incurs an LLM API call before the real work starts. Compounded over thousands of turns per day, this becomes a material cost.
 
-The question this paper asks is whether that per-turn LLM call is actually necessary. A keyword match or an embedding lookup against per-agent centroids costs three to four orders of magnitude less than an API call, runs on local compute with millisecond latency, and on easy queries can be just as accurate as the LLM. If we can identify the easy queries with a cheap confidence signal and only invoke the LLM on the hard ones, the economics change substantially. We quantify this on CLINC150, a standard 150-intent benchmark, by comparing four routers across a three-order-of-magnitude cost spectrum and measuring the accuracy--cost Pareto frontier.
+We ask whether the per-turn LLM call is necessary at all. A keyword match or embedding lookup against per-agent centroids is cheaper than an API call by three to four orders of magnitude, runs on local compute with millisecond latency, and can be as accurate as the LLM on easy queries. If the easy queries could be identified with a cheap confidence signal and only the hard queries were sent to the LLM, the per-turn routing cost would drop by roughly an order of magnitude. We measure this on CLINC150, a standard 150-intent benchmark, by evaluating four routers spanning three orders of magnitude of cost and tracing the accuracy-cost Pareto frontier.
 
-Our contributions are four-fold. First, we evaluate \textbf{four routers under identical protocol}: keyword~(R1), embedding-nearest-centroid~(R2), Claude Haiku~4.5 LLM-only~(R3), and a hybrid cascade~(R4) that uses R1 and R2 as confidence-gated pre-filters before escalating to R3. Second, we run a \textbf{3-seed paper-grade evaluation} on a 400-query stratified subsample per seed (seeds 42, 43, 44; 1,200 pooled), reporting Wilson 95\% confidence intervals and McNemar paired tests comparing R3 and R4 on the same queries. Third, we report the empirical finding that \textbf{R4 matches R3 accuracy within 0.4pp} (82.6\% vs 82.9\%) while escalating to the LLM on only 26\% of queries, a \textbf{74.3\% reduction in LLM cost} with no statistically significant accuracy loss at $\alpha$=0.05. Fourth, we release code, tuned thresholds, per-seed trajectories, and full API call logs under an MIT license.
+We make four contributions. First, we evaluate four routers under a common protocol: keyword (R1), embedding-nearest-centroid (R2), Claude Haiku~4.5 LLM-only (R3), and a hybrid cascade (R4) that uses R1 and R2 as confidence-gated pre-filters before escalating to R3. Second, we perform a 3-seed paper-grade evaluation on a stratified subsample of 400 queries per seed (seeds 42, 43, and 44; 1,200 pooled), and report Wilson 95\% confidence intervals and McNemar paired tests comparing R3 and R4 on the same queries. Third, we find that R4 matches R3 accuracy within 0.4\,pp (82.6\% vs 82.9\%) while escalating to the LLM on only 26\% of queries, a 74.3\% reduction in LLM cost with no significant accuracy loss at $\alpha$=0.05. Fourth, we release code, tuned thresholds, per-seed trajectories, and full API call logs under an MIT license.
 
 % ═══════════════════════════════════════════════════════════════
 \section{Related Work}
@@ -74,7 +75,7 @@ FrugalGPT \citep{chen2023frugalgpt} introduced the general cascade pattern (try 
 Hybrid~LLM \citep{ding2024hybridllm} trains a router to assign queries to a small or large model based on predicted difficulty, saving up to 40\% of large-model calls at matched quality (ICLR 2024). RouteLLM \citep{ong2025routellm} extends this with preference-data training, reporting over 85\% cost reduction on MT-Bench (ICLR 2025). AutoMix \citep{madaan2024automix} uses few-shot self-verification to decide whether to escalate from a small to a large model, achieving 50\%+ cost reduction. \citet{dekoninck2024unified} provide a theoretical foundation by deriving optimal strategies for both routing and cascading and unifying them into a single framework. FORC \citep{sakota2024forc} takes a meta-modeling approach, predicting per-query cost and performance without running candidate LLMs. Two recent surveys catalog the growing design space: \citet{survey2025routing} provides a taxonomy of routing strategies for resource optimisation, while \citet{survey2026dynamic} covers dynamic cascading specifically. Our cascade differs from these learned routers in that it requires \emph{no training data} beyond the existing agent inventory: the confidence signals come from the keyword and embedding stages themselves, making it deployable without the preference-data collection or quality-annotation steps that Hybrid~LLM, RouteLLM, and AutoMix require.
 
 \paragraph{Agent-routing systems.}
-Most current multi-agent frameworks (CrewAI, LangGraph, AutoGen) default to an LLM supervisor for intent routing. Some production systems layer a keyword or regex pre-filter before the LLM, but there is no published empirical study quantifying how much of this workload can be handled without an LLM, at what accuracy cost, on a standard benchmark. Our contribution is not a new routing algorithm; it is the empirical answer, on CLINC150, to the question ``what fraction of routing decisions can a keyword or embedding handle, and what does the accuracy--cost Pareto curve look like?''
+CrewAI, LangGraph, and AutoGen all default to an LLM supervisor for intent routing. Some production deployments add a keyword or regex pre-filter, but we are not aware of a published study that measures how much of the routing workload a non-LLM stage can absorb, or at what accuracy cost. This paper provides that measurement on CLINC150.
 
 % ═══════════════════════════════════════════════════════════════
 \section{Method}
@@ -120,7 +121,7 @@ R3 and R4 API costs are measured directly from Anthropic response metadata (inpu
 
 \subsection{Main Results}
 
-Table~\ref{tab:main} shows the headline numbers across all routers. The two hero rows have overlapping 95\% confidence intervals. The no-LLM cascade R4-no-LLM reaches only 74.9\%, so the LLM escalation branch is doing \emph{real work} on the 26\% of queries it sees. The question is whether that work needs to happen on every query.
+Table~\ref{tab:main} lists accuracy and cost for all routers. R3 and R4+LLM have overlapping 95\% confidence intervals. Without the LLM fallback (R4 no-LLM), accuracy drops to 74.9\%, confirming that the LLM is doing real work on the 26\% of queries it handles, while the remaining 74\% are resolved by the cheap stages at equal accuracy.
 
 \begin{center}
 \small
@@ -171,9 +172,9 @@ Per-seed, R3 costs \$0.117 in API usage (400 calls $\times$ Haiku~4.5 pricing), 
 
 The three cascade stages partition the seed-42 query distribution as: \textbf{59.3\% stop at R1} (11.0\% error), \textbf{17.0\% stop at R2} (16.2\% error), \textbf{23.8\% escalate to R3}. R2 processes harder queries than R1, explaining its higher error rate. Table~\ref{tab:perstage} breaks this down by agent.
 
-The most revealing finding is the \textbf{device agent}: R1 misclassifies 22.2\% of its stops (polysemous tokens like ``call'' and ``alarm''), but R2 recovers with only 4.3\% error. Embedding similarity correctly disambiguates commands that keywords cannot. OOS remains the weakest link at both stages: all 7 R1-stopped OOS queries and 5 of 9 R2-stopped OOS queries are wrong, confirming that a dedicated OOS detector would be the highest-impact improvement.
+The \textbf{device agent} illustrates the effect clearly: R1 misclassifies 22.2\% of its stops (polysemous tokens like ``call'' and ``alarm''), but R2 recovers with only 4.3\% error. Embedding similarity correctly disambiguates commands that keywords cannot. OOS remains the weakest link at both stages: all 7 R1-stopped OOS queries and 5 of 9 R2-stopped OOS queries are wrong, confirming that a dedicated OOS detector would be the highest-impact improvement.
 
-Across all three seeds (pooled $n_{\text{oos}} = 150$), the cascade's OOS accuracy is 48.0\% versus R3's 58.0\% ($\Delta = -10$\,pp, Cohen's $h = 0.20$, small effect). Notably, on \emph{in-domain} queries the cascade matches or slightly exceeds R3 (87.5\% vs 86.5\%, $h = 0.03$, negligible). The accuracy cost of the cascade is therefore entirely concentrated in OOS handling, suggesting that adding a calibrated OOS pre-filter would eliminate the cascade's primary weakness without sacrificing its 74\% cost advantage on in-domain traffic.
+Across all three seeds (pooled $n_{\text{oos}} = 150$), the cascade's OOS accuracy is 48.0\% versus R3's 58.0\% ($\Delta = -10$\,pp, Cohen's $h = 0.20$, small effect). On \emph{in-domain} queries the cascade matches or slightly exceeds R3 (87.5\% vs 86.5\%, $h = 0.03$, negligible). The accuracy cost of the cascade is therefore entirely concentrated in OOS handling, suggesting that adding a calibrated OOS pre-filter would eliminate the cascade's primary weakness without sacrificing its 74\% cost advantage on in-domain traffic.
 
 \end{multicols}
 
@@ -258,10 +259,10 @@ all-mpnet-base-v2 & 109M & \textbf{76.2\%} & 17.1 & 77.2\% & 1.3 \\
 % ═══════════════════════════════════════════════════════════════
 
 \paragraph{When does the cascade pay off?}
-A cascade wins when the query distribution is \emph{bimodal}: many easy queries answerable from surface features plus a tail of hard queries that need an LLM's open-ended reasoning. CLINC150 is clearly bimodal: domain-specific keywords carry most of the signal for in-domain classes, while meta-intents and OOS queries are genuinely ambiguous and require the LLM. A benchmark with flat difficulty would show less benefit.
+The cascade works because CLINC150's difficulty distribution is bimodal. Most in-domain queries contain obvious keywords (``transfer money,'' ``book flight'') that R1 or R2 can handle. The hard tail, mostly meta-intents and OOS, needs the LLM. On a benchmark where every query is equally hard, the savings would be smaller.
 
 \paragraph{Latency.}
-Beyond cost, the cascade reduces latency. On a Mac Mini (M2), R1 keyword processes a query in 3.2\,ms median and R2 embedding in 0.3\,ms, both 100--1,500$\times$ faster than R3's $\sim$500\,ms API round-trip. Since 74\% of queries never reach the LLM, the cascade's median end-to-end latency is dominated by the cheap stages, not the API call.
+The cascade also improves latency. On a Mac Mini (M2), R1 runs in 3.2\,ms and R2 in 0.3\,ms, both 100--1,500$\times$ faster than the $\sim$500\,ms API round-trip for R3. Since 74\% of queries stop before reaching the LLM, the median latency drops from hundreds of milliseconds to single digits.
 
 \paragraph{Limitations.}
 (1) We evaluate on a single English-only, single-turn benchmark (CLINC150); generalisation to multilingual or multi-turn routing is untested.
@@ -272,14 +273,20 @@ Beyond cost, the cascade reduces latency. On a Mac Mini (M2), R1 keyword process
 (6) R1's keyword lists are hand-crafted for CLINC150's intent names; deploying to a new domain requires rebuilding them, a non-trivial transfer cost that our evaluation does not measure.
 (7) LLM results are measured on a 400-query stratified subsample per seed; while pooled $n = 1{,}200$ gives tight CIs, the subsample's class balance may not reflect real-world query distributions.
 
-\paragraph{Extension: multi-turn agent tasks.}
-The cascade pattern extends naturally to multi-turn settings. Instead of routing every turn, one can use a cheap model for task \emph{decomposition} and save the expensive model for \emph{execution}. We evaluate this on $\tau$-bench \citep{sierra2024taubench} in companion work.
+\paragraph{Extension to multi-turn tasks.}
+Single-turn routing is only part of the picture. In multi-turn agent tasks, the same idea applies at a different granularity: use a cheap model to \emph{decompose} the task and reserve the expensive model for \emph{execution}. We test this on $\tau$-bench \citep{sierra2024taubench} in companion work.
 
 % ═══════════════════════════════════════════════════════════════
 \section{Conclusion}
 % ═══════════════════════════════════════════════════════════════
 
-On CLINC150, a confidence-gated hybrid cascade matches an LLM-only router within 0.4\,pp accuracy while reducing LLM calls by 74\%. The design choice is not ``LLM-as-router or not'' but ``LLM-as-router for \emph{which} queries.'' Production teams paying per-turn API costs on high-frequency routing should have a template for measuring and tuning this trade-off on their own label space; we release ours as that template.
+On CLINC150, the cascade matches the LLM-only router within 0.4\,pp while cutting LLM calls by 74\%. The practical implication is that an LLM router is only necessary on the hard tail of queries, roughly a quarter of traffic in our setup, and the cutoff can be measured on a team's own data with the code we release.
+
+% ═══════════════════════════════════════════════════════════════
+\section*{Acknowledgments}
+% ═══════════════════════════════════════════════════════════════
+
+Claude (Anthropic) was used for drafting assistance during writing. All experimental design, implementation, data collection, and analysis were conducted by the author.
 
 % ═══════════════════════════════════════════════════════════════
 \section*{Reproducibility Statement}
