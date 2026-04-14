@@ -36,7 +36,6 @@
 
 \author{
   Bo-Yu Chen\\
-  \textit{University of Texas at San Antonio}\\
   \texttt{boyu.chen@my.utsa.edu}
 }
 \date{}
@@ -65,7 +64,7 @@ We make four contributions. First, we evaluate four routers under a common proto
 \section{Related Work}
 % ═══════════════════════════════════════════════════════════════
 
-\paragraph{Intent classification on CLINC150.}
+\paragraph{Intent classification.}
 The CLINC150 benchmark \citep{larson2019evaluation} comprises 150 in-domain intents across 10 domains plus an out-of-scope (OOS) class, and was explicitly designed to stress-test intent classifiers under distribution shift. Strong baselines include SetFit \citep{tunstall2022efficient}, which uses contrastive few-shot fine-tuning on sentence-transformer encoders, and fine-tuned DeBERTa. We use SetFit as a no-LLM baseline in our headline table (70.2\% on the full test set), and Claude Haiku~4.5 zero-shot as our cost ceiling.
 
 \paragraph{Cost-aware LLM cascades.}
