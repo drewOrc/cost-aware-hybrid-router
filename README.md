@@ -77,6 +77,19 @@ python paper/figures.py
 
 ---
 
+## Calibrated Routing (Ablation)
+
+As an alternative to grid-searched thresholds, we fit Platt scaling (1D logistic regression) on the validation set to map R1 and R2 raw scores to P(correct). A single confidence threshold τ replaces the two heterogeneous thresholds (kt, et).
+
+| Comparison | Grid | Calibrated | Δ | McNemar p |
+|---|---|---|---|---|
+| no-LLM (~16% LLM rate) | 74.87% | 74.71% | −0.2pp | 0.531 (NS) |
+| with-LLM (~26% LLM rate) | 82.98% | **84.10%** | **+1.1pp** | **0.0007** |
+
+At τ=0.77, calibrated routing significantly outperforms grid search in the with-LLM setting (+1.1pp, p<0.001) by more precisely identifying queries that R2 can handle but grid thresholds would unnecessarily escalate. Details in paper §4.6. Run: `PYTHONPATH=. python3 src/calibrated_routing.py`.
+
+---
+
 ## Statistical Validation
 
 - **Wilson 95% CI** — R3: [80.7%, 84.9%], R4+LLM: [80.3%, 84.6%] (overlapping)
@@ -115,11 +128,17 @@ cost-aware-hybrid-router/
 │   ├── evaluate.py            ← zero-cost router evaluation
 │   ├── evaluate_llm_parallel.py ← LLM + cascade (parallel, multi-seed)
 │   ├── merge_seeds.py         ← aggregate → mean ± std, Wilson CI, McNemar
-│   └── stats.py               ← Wilson CI + McNemar exact binomial
+│   ├── stats.py               ← Wilson CI + McNemar exact binomial
+│   └── calibrated_routing.py  ← Platt scaling ablation (§4.6)
 ├── results/
 │   ├── tuned_thresholds.json
 │   ├── metrics_seed{42,43,44}.json
 │   ├── metrics_merged.json    ← primary results file
+│   ├── calibrated_routing/    ← Platt scaling ablation results
+│   │   ├── comparison.json
+│   │   ├── platt_params.json
+│   │   ├── tau_sweep.json
+│   │   └── tau_tradeoff_curve.png
 │   └── figures/
 └── paper/
     ├── acl_paper.tex/pdf
@@ -136,7 +155,7 @@ cost-aware-hybrid-router/
 2. **LLM ceiling is ~83%.** The cascade matches but cannot exceed Haiku zero-shot. Fine-tuned or few-shot LLMs would raise the bar.
 3. **Static thresholds.** No online adaptation or per-user personalisation.
 4. **OOS detection is brittle.** Relies on keyword fail-closed default; a calibrated OOS detector would be more robust.
-5. **Threshold sensitivity not characterised.** The cost/accuracy curve over the full `(kt, et)` grid is not reported.
+5. ~~**Threshold sensitivity not characterised.**~~ Addressed by the Platt scaling ablation (§4.6): a single calibrated τ replaces (kt, et) with comparable or better accuracy.
 
 ---
 

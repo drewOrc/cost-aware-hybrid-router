@@ -1,0 +1,296 @@
+[
+  {
+    "kt": 0.5,
+    "et": 0.05,
+    "accuracy_no_llm": 0.7435,
+    "accuracy_with_llm_expected": 0.8011,
+    "llm_call_rate": 0.136
+  },
+  {
+    "kt": 0.5,
+    "et": 0.1,
+    "accuracy_no_llm": 0.7435,
+    "accuracy_with_llm_expected": 0.8298,
+    "llm_call_rate": 0.26
+  },
+  {
+    "kt": 0.5,
+    "et": 0.15,
+    "accuracy_no_llm": 0.7435,
+    "accuracy_with_llm_expected": 0.8469,
+    "llm_call_rate": 0.3356
+  },
+  {
+    "kt": 0.5,
+    "et": 0.2,
+    "accuracy_no_llm": 0.7435,
+    "accuracy_with_llm_expected": 0.8498,
+    "llm_call_rate": 0.38
+  },
+  {
+    "kt": 0.5,
+    "et": 0.25,
+    "accuracy_no_llm": 0.7435,
+    "accuracy_with_llm_expected": 0.8508,
+    "llm_call_rate": 0.3962
+  },
+  {
+    "kt": 0.5,
+    "et": 0.3,
+    "accuracy_no_llm": 0.7435,
+    "accuracy_with_llm_expected": 0.8508,
+    "llm_call_rate": 0.4024
+  },
+  {
+    "kt": 1.0,
+    "et": 0.05,
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.8069,
+    "llm_call_rate": 0.1425
+  },
+  {
+    "kt": 1.0,
+    "et": 0.1,
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.8404,
+    "llm_call_rate": 0.2853
+  },
+  {
+    "kt": 1.0,
+    "et": 0.15,
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.8607,
+    "llm_call_rate": 0.3791
+  },
+  {
+    "kt": 1.0,
+    "et": 0.2,
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.8641,
+    "llm_call_rate": 0.4324
+  },
+  {
+    "kt": 1.0,
+    "et": 0.25,
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.8648,
+    "llm_call_rate": 0.4502
+  },
+  {
+    "kt": 1.0,
+    "et": 0.3,
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.8648,
+    "llm_call_rate": 0.4564
+  },
+  {
+    "kt": 1.5,
+    "et": 0.05,
+    "accuracy_no_llm": 0.7487,
+    "accuracy_with_llm_expected": 0.8147,
+    "llm_call_rate": 0.1616
+  },
+  {
+    "kt": 1.5,
+    "et": 0.1,
+    "accuracy_no_llm": 0.7487,
+    "accuracy_with_llm_expected": 0.8533,
+    "llm_call_rate": 0.3382
+  },
+  {
+    "kt": 1.5,
+    "et": 0.15,
+    "accuracy_no_llm": 0.7487,
+    "accuracy_with_llm_expected": 0.8747,
+    "llm_call_rate": 0.4611
+  },
+  {
+    "kt": 1.5,
+    "et": 0.2,
+    "accuracy_no_llm": 0.7487,
+    "accuracy_with_llm_expected": 0.8806,
+    "llm_call_rate": 0.54
+  },
+  {
+    "kt": 1.5,
+    "et": 0.25,
+    "accuracy_no_llm": 0.7487,
+    "accuracy_with_llm_expected": 0.8818,
+    "llm_call_rate": 0.566
+  },
+  {
+    "kt": 1.5,
+    "et": 0.3,
+    "accuracy_no_llm": 0.7487,
+    "accuracy_with_llm_expected": 0.8827,
+    "llm_call_rate": 0.5756
+  },
+  {
+    "kt": 2.0,
+    "et": 0.05,
+    "accuracy_no_llm": 0.7467,
+    "accuracy_with_llm_expected": 0.8133,
+    "llm_call_rate": 0.1693
+  },
+  {
+    "kt": 2.0,
+    "et": 0.1,
+    "accuracy_no_llm": 0.7467,
+    "accuracy_with_llm_expected": 0.8498,
+    "llm_call_rate": 0.4076
+  },
+  {
+    "kt": 2.0,
+    "et": 0.15,
+    "accuracy_no_llm": 0.7467,
+    "accuracy_with_llm_expected": 0.8703,
+    "llm_call_rate": 0.6002
+  },
+  {
+    "kt": 2.0,
+    "et": 0.2,
+    "accuracy_no_llm": 0.7467,
+    "accuracy_with_llm_expected": 0.8715,
+    "llm_call_rate": 0.7269
+  },
+  {
+    "kt": 2.0,
+    "et": 0.25,
+    "accuracy_no_llm": 0.7467,
+    "accuracy_with_llm_expected": 0.8708,
+    "llm_call_rate": 0.7711
+  },
+  {
+    "kt": 2.0,
+    "et": 0.3,
+    "accuracy_no_llm": 0.7467,
+    "accuracy_with_llm_expected": 0.8713,
+    "llm_call_rate": 0.7862
+  },
+  {
+    "kt": 2.5,
+    "et": 0.05,
+    "accuracy_no_llm": 0.7424,
+    "accuracy_with_llm_expected": 0.8096,
+    "llm_call_rate": 0.1722
+  },
+  {
+    "kt": 2.5,
+    "et": 0.1,
+    "accuracy_no_llm": 0.7424,
+    "accuracy_with_llm_expected": 0.8463,
+    "llm_call_rate": 0.4258
+  },
+  {
+    "kt": 2.5,
+    "et": 0.15,
+    "accuracy_no_llm": 0.7424,
+    "accuracy_with_llm_expected": 0.8667,
+    "llm_call_rate": 0.6453
+  },
+  {
+    "kt": 2.5,
+    "et": 0.2,
+    "accuracy_no_llm": 0.7424,
+    "accuracy_with_llm_expected": 0.8665,
+    "llm_call_rate": 0.7893
+  },
+  {
+    "kt": 2.5,
+    "et": 0.25,
+    "accuracy_no_llm": 0.7424,
+    "accuracy_with_llm_expected": 0.8647,
+    "llm_call_rate": 0.8449
+  },
+  {
+    "kt": 2.5,
+    "et": 0.3,
+    "accuracy_no_llm": 0.7424,
+    "accuracy_with_llm_expected": 0.8645,
+    "llm_call_rate": 0.8667
+  },
+  {
+    "kt": 3.0,
+    "et": 0.05,
+    "accuracy_no_llm": 0.742,
+    "accuracy_with_llm_expected": 0.8092,
+    "llm_call_rate": 0.1722
+  },
+  {
+    "kt": 3.0,
+    "et": 0.1,
+    "accuracy_no_llm": 0.742,
+    "accuracy_with_llm_expected": 0.8458,
+    "llm_call_rate": 0.4282
+  },
+  {
+    "kt": 3.0,
+    "et": 0.15,
+    "accuracy_no_llm": 0.742,
+    "accuracy_with_llm_expected": 0.8656,
+    "llm_call_rate": 0.6533
+  },
+  {
+    "kt": 3.0,
+    "et": 0.2,
+    "accuracy_no_llm": 0.742,
+    "accuracy_with_llm_expected": 0.8648,
+    "llm_call_rate": 0.8075
+  },
+  {
+    "kt": 3.0,
+    "et": 0.25,
+    "accuracy_no_llm": 0.742,
+    "accuracy_with_llm_expected": 0.8633,
+    "llm_call_rate": 0.8736
+  },
+  {
+    "kt": 3.0,
+    "et": 0.3,
+    "accuracy_no_llm": 0.742,
+    "accuracy_with_llm_expected": 0.8632,
+    "llm_call_rate": 0.8998
+  },
+  {
+    "kt": 3.5,
+    "et": 0.05,
+    "accuracy_no_llm": 0.7402,
+    "accuracy_with_llm_expected": 0.8074,
+    "llm_call_rate": 0.1722
+  },
+  {
+    "kt": 3.5,
+    "et": 0.1,
+    "accuracy_no_llm": 0.7402,
+    "accuracy_with_llm_expected": 0.844,
+    "llm_call_rate": 0.4304
+  },
+  {
+    "kt": 3.5,
+    "et": 0.15,
+    "accuracy_no_llm": 0.7402,
+    "accuracy_with_llm_expected": 0.8636,
+    "llm_call_rate": 0.6604
+  },
+  {
+    "kt": 3.5,
+    "et": 0.2,
+    "accuracy_no_llm": 0.7402,
+    "accuracy_with_llm_expected": 0.8626,
+    "llm_call_rate": 0.824
+  },
+  {
+    "kt": 3.5,
+    "et": 0.25,
+    "accuracy_no_llm": 0.7402,
+    "accuracy_with_llm_expected": 0.8608,
+    "llm_call_rate": 0.8962
+  },
+  {
+    "kt": 3.5,
+    "et": 0.3,
+    "accuracy_no_llm": 0.7402,
+    "accuracy_with_llm_expected": 0.8603,
+    "llm_call_rate": 0.9244
+  }
+]

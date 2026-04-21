@@ -1,0 +1,508 @@
+[
+  {
+    "accuracy_no_llm": 0.7464,
+    "accuracy_with_llm_expected": 0.7464,
+    "llm_call_rate": 0.0,
+    "stages": {
+      "keyword": 3092,
+      "embedding": 2408,
+      "llm_fallback": 0
+    },
+    "tau": 0.5
+  },
+  {
+    "accuracy_no_llm": 0.7464,
+    "accuracy_with_llm_expected": 0.7464,
+    "llm_call_rate": 0.0,
+    "stages": {
+      "keyword": 3092,
+      "embedding": 2408,
+      "llm_fallback": 0
+    },
+    "tau": 0.51
+  },
+  {
+    "accuracy_no_llm": 0.7464,
+    "accuracy_with_llm_expected": 0.7464,
+    "llm_call_rate": 0.0,
+    "stages": {
+      "keyword": 3092,
+      "embedding": 2408,
+      "llm_fallback": 0
+    },
+    "tau": 0.52
+  },
+  {
+    "accuracy_no_llm": 0.7464,
+    "accuracy_with_llm_expected": 0.7464,
+    "llm_call_rate": 0.0,
+    "stages": {
+      "keyword": 3092,
+      "embedding": 2408,
+      "llm_fallback": 0
+    },
+    "tau": 0.53
+  },
+  {
+    "accuracy_no_llm": 0.7464,
+    "accuracy_with_llm_expected": 0.7464,
+    "llm_call_rate": 0.0,
+    "stages": {
+      "keyword": 3092,
+      "embedding": 2408,
+      "llm_fallback": 0
+    },
+    "tau": 0.54
+  },
+  {
+    "accuracy_no_llm": 0.7464,
+    "accuracy_with_llm_expected": 0.7464,
+    "llm_call_rate": 0.0,
+    "stages": {
+      "keyword": 3092,
+      "embedding": 2408,
+      "llm_fallback": 0
+    },
+    "tau": 0.55
+  },
+  {
+    "accuracy_no_llm": 0.7464,
+    "accuracy_with_llm_expected": 0.7464,
+    "llm_call_rate": 0.0,
+    "stages": {
+      "keyword": 3092,
+      "embedding": 2408,
+      "llm_fallback": 0
+    },
+    "tau": 0.56
+  },
+  {
+    "accuracy_no_llm": 0.7464,
+    "accuracy_with_llm_expected": 0.7464,
+    "llm_call_rate": 0.0,
+    "stages": {
+      "keyword": 3092,
+      "embedding": 2408,
+      "llm_fallback": 0
+    },
+    "tau": 0.57
+  },
+  {
+    "accuracy_no_llm": 0.7464,
+    "accuracy_with_llm_expected": 0.7464,
+    "llm_call_rate": 0.0,
+    "stages": {
+      "keyword": 3092,
+      "embedding": 2408,
+      "llm_fallback": 0
+    },
+    "tau": 0.58
+  },
+  {
+    "accuracy_no_llm": 0.7464,
+    "accuracy_with_llm_expected": 0.7464,
+    "llm_call_rate": 0.0,
+    "stages": {
+      "keyword": 3092,
+      "embedding": 2408,
+      "llm_fallback": 0
+    },
+    "tau": 0.59
+  },
+  {
+    "accuracy_no_llm": 0.7464,
+    "accuracy_with_llm_expected": 0.7464,
+    "llm_call_rate": 0.0,
+    "stages": {
+      "keyword": 3092,
+      "embedding": 2408,
+      "llm_fallback": 0
+    },
+    "tau": 0.6
+  },
+  {
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.7471,
+    "llm_call_rate": 0.0,
+    "stages": {
+      "keyword": 2949,
+      "embedding": 2551,
+      "llm_fallback": 0
+    },
+    "tau": 0.61
+  },
+  {
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.7471,
+    "llm_call_rate": 0.0,
+    "stages": {
+      "keyword": 2949,
+      "embedding": 2551,
+      "llm_fallback": 0
+    },
+    "tau": 0.62
+  },
+  {
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.7471,
+    "llm_call_rate": 0.0,
+    "stages": {
+      "keyword": 2949,
+      "embedding": 2551,
+      "llm_fallback": 0
+    },
+    "tau": 0.63
+  },
+  {
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.7695,
+    "llm_call_rate": 0.0273,
+    "stages": {
+      "keyword": 2949,
+      "embedding": 2401,
+      "llm_fallback": 150
+    },
+    "tau": 0.64
+  },
+  {
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.7768,
+    "llm_call_rate": 0.0387,
+    "stages": {
+      "keyword": 2949,
+      "embedding": 2338,
+      "llm_fallback": 213
+    },
+    "tau": 0.65
+  },
+  {
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.781,
+    "llm_call_rate": 0.0476,
+    "stages": {
+      "keyword": 2949,
+      "embedding": 2289,
+      "llm_fallback": 262
+    },
+    "tau": 0.66
+  },
+  {
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.7843,
+    "llm_call_rate": 0.06,
+    "stages": {
+      "keyword": 2949,
+      "embedding": 2221,
+      "llm_fallback": 330
+    },
+    "tau": 0.67
+  },
+  {
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.7893,
+    "llm_call_rate": 0.074,
+    "stages": {
+      "keyword": 2949,
+      "embedding": 2144,
+      "llm_fallback": 407
+    },
+    "tau": 0.68
+  },
+  {
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.7934,
+    "llm_call_rate": 0.0887,
+    "stages": {
+      "keyword": 2949,
+      "embedding": 2063,
+      "llm_fallback": 488
+    },
+    "tau": 0.69
+  },
+  {
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.7976,
+    "llm_call_rate": 0.104,
+    "stages": {
+      "keyword": 2949,
+      "embedding": 1979,
+      "llm_fallback": 572
+    },
+    "tau": 0.7
+  },
+  {
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.8021,
+    "llm_call_rate": 0.122,
+    "stages": {
+      "keyword": 2949,
+      "embedding": 1880,
+      "llm_fallback": 671
+    },
+    "tau": 0.71
+  },
+  {
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.8066,
+    "llm_call_rate": 0.142,
+    "stages": {
+      "keyword": 2949,
+      "embedding": 1770,
+      "llm_fallback": 781
+    },
+    "tau": 0.72
+  },
+  {
+    "accuracy_no_llm": 0.7471,
+    "accuracy_with_llm_expected": 0.8108,
+    "llm_call_rate": 0.16,
+    "stages": {
+      "keyword": 2949,
+      "embedding": 1671,
+      "llm_fallback": 880
+    },
+    "tau": 0.73
+  },
+  {
+    "accuracy_no_llm": 0.7516,
+    "accuracy_with_llm_expected": 0.8243,
+    "llm_call_rate": 0.1925,
+    "stages": {
+      "keyword": 2494,
+      "embedding": 1947,
+      "llm_fallback": 1059
+    },
+    "tau": 0.74
+  },
+  {
+    "accuracy_no_llm": 0.7516,
+    "accuracy_with_llm_expected": 0.83,
+    "llm_call_rate": 0.2149,
+    "stages": {
+      "keyword": 2494,
+      "embedding": 1824,
+      "llm_fallback": 1182
+    },
+    "tau": 0.75
+  },
+  {
+    "accuracy_no_llm": 0.7516,
+    "accuracy_with_llm_expected": 0.8362,
+    "llm_call_rate": 0.2398,
+    "stages": {
+      "keyword": 2494,
+      "embedding": 1687,
+      "llm_fallback": 1319
+    },
+    "tau": 0.76
+  },
+  {
+    "accuracy_no_llm": 0.7516,
+    "accuracy_with_llm_expected": 0.841,
+    "llm_call_rate": 0.2669,
+    "stages": {
+      "keyword": 2494,
+      "embedding": 1538,
+      "llm_fallback": 1468
+    },
+    "tau": 0.77
+  },
+  {
+    "accuracy_no_llm": 0.7516,
+    "accuracy_with_llm_expected": 0.846,
+    "llm_call_rate": 0.2904,
+    "stages": {
+      "keyword": 2494,
+      "embedding": 1409,
+      "llm_fallback": 1597
+    },
+    "tau": 0.78
+  },
+  {
+    "accuracy_no_llm": 0.7516,
+    "accuracy_with_llm_expected": 0.8511,
+    "llm_call_rate": 0.3091,
+    "stages": {
+      "keyword": 2494,
+      "embedding": 1306,
+      "llm_fallback": 1700
+    },
+    "tau": 0.79
+  },
+  {
+    "accuracy_no_llm": 0.7516,
+    "accuracy_with_llm_expected": 0.8545,
+    "llm_call_rate": 0.3315,
+    "stages": {
+      "keyword": 2494,
+      "embedding": 1183,
+      "llm_fallback": 1823
+    },
+    "tau": 0.8
+  },
+  {
+    "accuracy_no_llm": 0.7516,
+    "accuracy_with_llm_expected": 0.858,
+    "llm_call_rate": 0.356,
+    "stages": {
+      "keyword": 2494,
+      "embedding": 1048,
+      "llm_fallback": 1958
+    },
+    "tau": 0.81
+  },
+  {
+    "accuracy_no_llm": 0.7516,
+    "accuracy_with_llm_expected": 0.8618,
+    "llm_call_rate": 0.374,
+    "stages": {
+      "keyword": 2494,
+      "embedding": 949,
+      "llm_fallback": 2057
+    },
+    "tau": 0.82
+  },
+  {
+    "accuracy_no_llm": 0.7516,
+    "accuracy_with_llm_expected": 0.868,
+    "llm_call_rate": 0.3949,
+    "stages": {
+      "keyword": 2494,
+      "embedding": 834,
+      "llm_fallback": 2172
+    },
+    "tau": 0.83
+  },
+  {
+    "accuracy_no_llm": 0.7487,
+    "accuracy_with_llm_expected": 0.8722,
+    "llm_call_rate": 0.4445,
+    "stages": {
+      "keyword": 2283,
+      "embedding": 772,
+      "llm_fallback": 2445
+    },
+    "tau": 0.84
+  },
+  {
+    "accuracy_no_llm": 0.7487,
+    "accuracy_with_llm_expected": 0.8741,
+    "llm_call_rate": 0.4587,
+    "stages": {
+      "keyword": 2283,
+      "embedding": 694,
+      "llm_fallback": 2523
+    },
+    "tau": 0.85
+  },
+  {
+    "accuracy_no_llm": 0.7487,
+    "accuracy_with_llm_expected": 0.8757,
+    "llm_call_rate": 0.4784,
+    "stages": {
+      "keyword": 2283,
+      "embedding": 586,
+      "llm_fallback": 2631
+    },
+    "tau": 0.86
+  },
+  {
+    "accuracy_no_llm": 0.7487,
+    "accuracy_with_llm_expected": 0.8766,
+    "llm_call_rate": 0.4949,
+    "stages": {
+      "keyword": 2283,
+      "embedding": 495,
+      "llm_fallback": 2722
+    },
+    "tau": 0.87
+  },
+  {
+    "accuracy_no_llm": 0.7487,
+    "accuracy_with_llm_expected": 0.8782,
+    "llm_call_rate": 0.5147,
+    "stages": {
+      "keyword": 2283,
+      "embedding": 386,
+      "llm_fallback": 2831
+    },
+    "tau": 0.88
+  },
+  {
+    "accuracy_no_llm": 0.7487,
+    "accuracy_with_llm_expected": 0.8795,
+    "llm_call_rate": 0.53,
+    "stages": {
+      "keyword": 2283,
+      "embedding": 302,
+      "llm_fallback": 2915
+    },
+    "tau": 0.89
+  },
+  {
+    "accuracy_no_llm": 0.7487,
+    "accuracy_with_llm_expected": 0.8807,
+    "llm_call_rate": 0.542,
+    "stages": {
+      "keyword": 2283,
+      "embedding": 236,
+      "llm_fallback": 2981
+    },
+    "tau": 0.9
+  },
+  {
+    "accuracy_no_llm": 0.7487,
+    "accuracy_with_llm_expected": 0.8812,
+    "llm_call_rate": 0.5525,
+    "stages": {
+      "keyword": 2282,
+      "embedding": 179,
+      "llm_fallback": 3039
+    },
+    "tau": 0.91
+  },
+  {
+    "accuracy_no_llm": 0.7487,
+    "accuracy_with_llm_expected": 0.8814,
+    "llm_call_rate": 0.5624,
+    "stages": {
+      "keyword": 2282,
+      "embedding": 125,
+      "llm_fallback": 3093
+    },
+    "tau": 0.92
+  },
+  {
+    "accuracy_no_llm": 0.7467,
+    "accuracy_with_llm_expected": 0.8713,
+    "llm_call_rate": 0.7611,
+    "stages": {
+      "keyword": 1163,
+      "embedding": 151,
+      "llm_fallback": 4186
+    },
+    "tau": 0.93
+  },
+  {
+    "accuracy_no_llm": 0.7467,
+    "accuracy_with_llm_expected": 0.8715,
+    "llm_call_rate": 0.7684,
+    "stages": {
+      "keyword": 1163,
+      "embedding": 111,
+      "llm_fallback": 4226
+    },
+    "tau": 0.94
+  },
+  {
+    "accuracy_no_llm": 0.7467,
+    "accuracy_with_llm_expected": 0.8719,
+    "llm_call_rate": 0.7798,
+    "stages": {
+      "keyword": 1134,
+      "embedding": 77,
+      "llm_fallback": 4289
+    },
+    "tau": 0.95
+  }
+]
