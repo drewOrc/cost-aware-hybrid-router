@@ -15,7 +15,9 @@ Output → results/calibrated_routing/
 """
 
 import json
+import random
 import time
+from collections import defaultdict
 from pathlib import Path
 
 import matplotlib
@@ -46,6 +48,8 @@ with open(DATA_DIR / "intent_to_agent.json") as f:
     raw = json.load(f)
     MAPPING = {k: v for k, v in raw.items() if k != "_meta"}
 
+# Estimated P(LLM correct) on escalated queries, from R3 evaluation on
+# validation set (seeds 42/43/44). Same value used in tune.py grid search.
 P_LLM_CORRECT = 0.856
 
 GRID_NO_LLM = {"kt": 1.5, "et": 0.05}
@@ -156,9 +160,6 @@ def evaluate_grid_cascade(scores, kt, et):
 # Stratified sampling (same as evaluate.py)
 # ─────────────────────────────────────────────
 
-import random
-from collections import defaultdict
-
 def stratified_sample_indices(scores, n_per_agent, seed):
     rng = random.Random(seed)
     by_agent = defaultdict(list)
@@ -198,9 +199,9 @@ def main():
     X_r2 = np.array([s["r2_score"] for s in val_scores]).reshape(-1, 1)
     y_r2 = np.array([s["r2_correct"] for s in val_scores])
 
-    platt_r1 = LogisticRegression(solver="lbfgs", max_iter=1000)
+    platt_r1 = LogisticRegression(C=1e10, solver="lbfgs", max_iter=1000)
     platt_r1.fit(X_r1, y_r1)
-    platt_r2 = LogisticRegression(solver="lbfgs", max_iter=1000)
+    platt_r2 = LogisticRegression(C=1e10, solver="lbfgs", max_iter=1000)
     platt_r2.fit(X_r2, y_r2)
 
     a1, b1 = float(platt_r1.coef_[0][0]), float(platt_r1.intercept_[0])

@@ -84,9 +84,9 @@ As an alternative to grid-searched thresholds, we fit Platt scaling (1D logistic
 | Comparison | Grid | Calibrated | Δ | McNemar p |
 |---|---|---|---|---|
 | no-LLM (~16% LLM rate) | 74.87% | 74.71% | −0.2pp | 0.531 (NS) |
-| with-LLM (~26% LLM rate) | 82.98% | **84.10%** | **+1.1pp** | **0.0007** |
+| with-LLM (25.4% vs 26.0%) | 82.98% | **83.92%** | **+0.9pp** | **0.0007** |
 
-At τ=0.77, calibrated routing significantly outperforms grid search in the with-LLM setting (+1.1pp, p<0.001) by more precisely identifying queries that R2 can handle but grid thresholds would unnecessarily escalate. Details in paper §4.6. Run: `PYTHONPATH=. python3 src/calibrated_routing.py`.
+At τ=0.75, the calibrated cascade's cheap stages resolve 0.8pp more queries correctly (McNemar p<0.001) while using fewer LLM calls (25.4% vs 26.0%). Platt scaling is fit with unregularized logistic regression (C=1e10). Details in paper §4.6. Run: `PYTHONPATH=. python3 src/calibrated_routing.py`.
 
 ---
 

@@ -228,25 +228,25 @@ Our paper configuration was selected by a constraint-based criterion (min LLM ra
 \subsection{Calibrated Routing via Platt Scaling}
 \label{sec:calibrated}
 
-The thresholds $k_t$ and $e_t$ operate on different scales (keyword weight sums vs.\ cosine similarities) and are fit by grid search on validation data. An alternative is to calibrate both scores into $P(\text{correct})$ via Platt scaling \citep{platt1999probabilistic}, then apply a single threshold $\tau$ at both cascade stages. We fit a logistic regression on the validation set for each router: $P(\text{correct} \mid \text{R1}) = \sigma(3.09 \cdot s_{\text{kw}} - 2.05)$ and $P(\text{correct} \mid \text{R2}) = \sigma(8.06 \cdot s_{\text{cos}} + 0.54)$.
+The thresholds $k_t$ and $e_t$ operate on different scales (keyword weight sums vs.\ cosine similarities) and are fit by grid search on validation data. An alternative is to calibrate both scores into $P(\text{correct})$ via Platt scaling \citep{platt1999probabilistic}, then apply a single threshold $\tau$ at both cascade stages. We fit an unregularized logistic regression on the validation set for each router: $P(\text{correct} \mid \text{R1}) = \sigma(3.12 \cdot s_{\text{kw}} - 2.07)$ and $P(\text{correct} \mid \text{R2}) = \sigma(12.59 \cdot s_{\text{cos}} + 0.11)$.
 
-Table~\ref{tab:calibrated} compares the two approaches at matched LLM call rates on the full test set ($n = 5{,}500$). At $\sim$26\% LLM rate, the calibrated cascade's cheap stages resolve 0.8\,pp more queries correctly (McNemar $p < 0.001$). The gain comes from R2: Platt scaling reveals that $P(\text{correct} \mid \text{R2}) \geq 0.63$ for all queries, so $\tau = 0.77$ retains queries that the grid threshold $e_t = 0.10$ would unnecessarily escalate. Since both methods send comparable fractions to the same LLM, their expected with-LLM accuracies differ by the same margin.
+Table~\ref{tab:calibrated} compares the two approaches on the full test set ($n = 5{,}500$). At comparable LLM call rates (25.4\% vs.\ 26.0\%), the calibrated cascade's cheap stages resolve 0.8\,pp more queries correctly (McNemar $p < 0.001$). The gain comes from R2: Platt scaling reveals that $P(\text{correct} \mid \text{R2}) \geq 0.53$ for all queries, so $\tau = 0.75$ retains queries that the grid threshold $e_t = 0.10$ would unnecessarily escalate. Since both methods send comparable fractions to the same LLM, their expected with-LLM accuracies differ by the same margin (83.9\% vs.\ 83.0\%, estimated via $P_{\text{LLM}} = 0.856$).
 
 \begin{center}
 \small
-\captionof{table}{Grid-search vs.\ calibrated thresholds (full test, $n = 5{,}500$).}
+\captionof{table}{Grid-search vs.\ calibrated thresholds (full test, $n = 5{,}500$). Acc.\ = cheap-stage accuracy (no LLM). Exp.\ = expected accuracy with LLM fallback at $P_{\text{LLM}} = 0.856$.}
 \label{tab:calibrated}
-\begin{tabular}{@{}lcccc@{}}
+\begin{tabular}{@{}lccccc@{}}
 \toprule
-\textbf{Method} & \textbf{Threshold} & \textbf{Acc.} & \textbf{LLM\%} & \textbf{McNemar} \\
+\textbf{Method} & \textbf{Threshold} & \textbf{Acc.} & \textbf{Exp.} & \textbf{LLM\%} & \textbf{McNemar} \\
 \midrule
-Grid search & $k_t{=}0.5, e_t{=}0.1$ & 74.4 & 26.0 & --- \\
-Calibrated & $\tau{=}0.77$ & \textbf{75.2} & 26.7 & $p{<}0.001$ \\
+Grid search & $k_t{=}0.5, e_t{=}0.1$ & 74.4 & 83.0 & 26.0 & --- \\
+Calibrated & $\tau{=}0.75$ & \textbf{75.2} & \textbf{83.9} & \textbf{25.4} & $p{<}0.001$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-The practical advantage is a single, interpretable knob: $\tau = 0.77$ means ``escalate when $P(\text{correct}) < 77\%$,'' regardless of which cheap stage produced the score. This replaces two dataset-specific thresholds with one that carries a probabilistic interpretation and transfers more naturally to new domains.
+The practical advantage is a single, interpretable knob: $\tau = 0.75$ means ``escalate when $P(\text{correct}) < 75\%$,'' regardless of which cheap stage produced the score. This replaces two dataset-specific thresholds with one that carries a probabilistic interpretation and transfers more naturally to new domains.
 
 \subsection{Alternative Cheap Stages}
 \label{sec:cheapstage}

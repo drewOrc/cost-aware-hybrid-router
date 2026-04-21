@@ -31,25 +31,25 @@
   },
   "calibrated_match": {
     "no_llm": {
-      "tau": 0.73,
+      "tau": 0.69,
       "accuracy_no_llm": 0.7471,
-      "accuracy_with_llm_expected": 0.8108,
-      "llm_call_rate": 0.16,
+      "accuracy_with_llm_expected": 0.8099,
+      "llm_call_rate": 0.156,
       "stages": {
         "keyword": 2949,
-        "embedding": 1671,
-        "llm_fallback": 880
+        "embedding": 1693,
+        "llm_fallback": 858
       }
     },
     "with_llm": {
-      "tau": 0.77,
+      "tau": 0.75,
       "accuracy_no_llm": 0.7516,
-      "accuracy_with_llm_expected": 0.841,
-      "llm_call_rate": 0.2669,
+      "accuracy_with_llm_expected": 0.8392,
+      "llm_call_rate": 0.254,
       "stages": {
         "keyword": 2494,
-        "embedding": 1538,
-        "llm_fallback": 1468
+        "embedding": 1609,
+        "llm_fallback": 1397
       }
     }
   },
@@ -59,7 +59,7 @@
         "kt": 1.5,
         "et": 0.05
       },
-      "calibrated_tau": 0.73,
+      "calibrated_tau": 0.69,
       "p_value": 0.531045,
       "delta": -0.0016,
       "significant": false,
@@ -72,7 +72,7 @@
         "kt": 0.5,
         "et": 0.1
       },
-      "calibrated_tau": 0.77,
+      "calibrated_tau": 0.75,
       "p_value": 0.000668,
       "delta": 0.0082,
       "significant": true,
@@ -85,9 +85,9 @@
     {
       "seed": 42,
       "n": 400,
-      "tau": 0.77,
+      "tau": 0.75,
       "calibrated_acc_no_llm": 0.8075,
-      "calibrated_llm_rate": 0.255,
+      "calibrated_llm_rate": 0.24,
       "grid_acc_no_llm": 0.8,
       "grid_llm_rate": 0.255,
       "mcnemar_p": 0.548828,
@@ -97,9 +97,9 @@
     {
       "seed": 43,
       "n": 400,
-      "tau": 0.77,
+      "tau": 0.75,
       "calibrated_acc_no_llm": 0.795,
-      "calibrated_llm_rate": 0.2575,
+      "calibrated_llm_rate": 0.2425,
       "grid_acc_no_llm": 0.7675,
       "grid_llm_rate": 0.2475,
       "mcnemar_p": 0.019211,
@@ -109,9 +109,9 @@
     {
       "seed": 44,
       "n": 400,
-      "tau": 0.77,
+      "tau": 0.75,
       "calibrated_acc_no_llm": 0.7875,
-      "calibrated_llm_rate": 0.2825,
+      "calibrated_llm_rate": 0.2725,
       "grid_acc_no_llm": 0.78,
       "grid_llm_rate": 0.28,
       "mcnemar_p": 0.375,
@@ -121,20 +121,20 @@
   ],
   "platt_params": {
     "r1": {
-      "a": 3.0857959598713776,
-      "b": -2.047877524196515
+      "a": 3.115762854651661,
+      "b": -2.0674185000028005
     },
     "r2": {
-      "a": 8.056678766241914,
-      "b": 0.5429916493093544
+      "a": 12.593793404158555,
+      "b": 0.10792243465901963
     },
     "val_r1_prob_range": [
-      0.1143,
+      0.1123,
       1.0
     ],
     "val_r2_prob_range": [
-      0.6325,
-      0.9957
+      0.527,
+      0.9996
     ],
     "val_set_size": 3100,
     "p_llm_correct": 0.856
