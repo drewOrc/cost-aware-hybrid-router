@@ -228,13 +228,13 @@ Our paper configuration was selected by a constraint-based criterion (min LLM ra
 \subsection{Calibrated Routing via Platt Scaling}
 \label{sec:calibrated}
 
-The thresholds $k_t$ and $e_t$ operate on different scales (keyword weight sums vs.\ cosine similarities) and are fit by grid search on validation data. An alternative is to calibrate both scores into $P(\text{correct})$ via Platt scaling \citep{platt1999probabilistic}, then apply a single threshold $\tau$ at both cascade stages. We fit an unregularized logistic regression on the validation set for each router: $P(\text{correct} \mid \text{R1}) = \sigma(3.12 \cdot s_{\text{kw}} - 2.07)$ and $P(\text{correct} \mid \text{R2}) = \sigma(12.59 \cdot s_{\text{cos}} + 0.11)$.
+The thresholds $k_t$ and $e_t$ operate on different scales (keyword weight sums vs.\ cosine similarities) and are fit by grid search on validation data. An alternative is to calibrate both scores into $P(\text{correct})$ via Platt scaling \citep{platt1999probabilistic}, then apply a single threshold $\tau$ at both cascade stages. We fit an unregularized logistic regression on the validation set for each router (1~feature, 2~parameters per model; coefficients in our code release). Since each model has only one feature, regularization is unnecessary.\footnote{Both grid-search thresholds and Platt scaling parameters are fit on the same validation split. The comparison therefore reflects in-distribution performance; out-of-distribution robustness requires evaluation on a separate benchmark.} On the held-out test set, R2 achieves moderate calibration (ECE\,=\,0.065, 10~bins); R1's ECE is higher (0.129), reflecting the keyword router's discrete score distribution.
 
-Table~\ref{tab:calibrated} compares the two approaches on the full test set ($n = 5{,}500$). At comparable LLM call rates (25.4\% vs.\ 26.0\%), the calibrated cascade's cheap stages resolve 0.8\,pp more queries correctly (McNemar $p < 0.001$). The gain comes from R2: Platt scaling reveals that $P(\text{correct} \mid \text{R2}) \geq 0.53$ for all queries, so $\tau = 0.75$ retains queries that the grid threshold $e_t = 0.10$ would unnecessarily escalate. Since both methods send comparable fractions to the same LLM, their expected with-LLM accuracies differ by the same margin (83.9\% vs.\ 83.0\%, estimated via $P_{\text{LLM}} = 0.856$).
+Table~\ref{tab:calibrated} compares the two approaches using cheap-stage accuracy on the full test set ($n = 5{,}500$), isolating the routing decisions from LLM performance variance. At comparable LLM call rates (25.4\% vs.\ 26.0\%), the calibrated cascade's cheap stages resolve 0.8\,pp more queries correctly (McNemar $p < 0.001$; Cohen's $h = 0.019$, negligible effect). TF-IDF cosine similarities concentrate in $[0.02, 0.25]$; Platt scaling maps this narrow range to $P(\text{correct}) \in [0.53, 1.00]$, and $\tau = 0.75$ partitions it more effectively than the raw threshold $e_t = 0.10$. The calibrated cascade sends fewer queries to the LLM (25.4\% vs.\ 26.0\%), so the accuracy gain cannot be attributed to greater LLM usage.\footnote{Expected with-LLM accuracies (83.9\% vs.\ 83.0\%) use $P_{\text{LLM}} = 0.856$ from the validation set. The actual test-set R3 accuracy is 82.9\%, which uniformly shifts both figures by ${\sim}$0.7\,pp but preserves relative comparisons.}
 
 \begin{center}
 \small
-\captionof{table}{Grid-search vs.\ calibrated thresholds (full test, $n = 5{,}500$). Acc.\ = cheap-stage accuracy (no LLM). Exp.\ = expected accuracy with LLM fallback at $P_{\text{LLM}} = 0.856$.}
+\captionof{table}{Grid-search vs.\ calibrated thresholds (full test, $n = 5{,}500$). Acc.\ = cheap-stage accuracy (no LLM). Exp.\ = expected with-LLM accuracy ($P_{\text{LLM}} = 0.856$; see footnote).}
 \label{tab:calibrated}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
@@ -246,7 +246,7 @@ Calibrated & $\tau{=}0.75$ & \textbf{75.2} & \textbf{83.9} & \textbf{25.4} & $p{
 \end{tabular}
 \end{center}
 
-The practical advantage is a single, interpretable knob: $\tau = 0.75$ means ``escalate when $P(\text{correct}) < 75\%$,'' regardless of which cheap stage produced the score. This replaces two dataset-specific thresholds with one that carries a probabilistic interpretation and transfers more naturally to new domains.
+The primary advantage is interpretability, not accuracy: a single threshold $\tau = 0.75$ (``escalate when $P(\text{correct}) < 75\%$'') replaces two dataset-specific values with one that carries a probabilistic meaning. We hypothesize that this framing may transfer more easily to new domains than raw-score thresholds, but verifying this requires cross-domain evaluation, which we leave to future work.
 
 \subsection{Alternative Cheap Stages}
 \label{sec:cheapstage}

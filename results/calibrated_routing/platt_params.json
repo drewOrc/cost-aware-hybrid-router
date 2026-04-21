@@ -16,5 +16,6 @@
     0.9996
   ],
   "val_set_size": 3100,
-  "p_llm_correct": 0.856
+  "p_llm_correct": 0.856,
+  "note_regularization": "C=1e10 (effectively unregularized); 1 feature per model, 2 params fit to 3100+ samples"
 }

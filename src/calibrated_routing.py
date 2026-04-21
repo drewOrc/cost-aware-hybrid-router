@@ -157,6 +157,45 @@ def evaluate_grid_cascade(scores, kt, et):
 
 
 # ─────────────────────────────────────────────
+# Calibration quality (ECE + Cohen's h)
+# ────────────────────────────────────────────���
+
+def compute_ece(probs: np.ndarray, correct: np.ndarray, n_bins: int = 10) -> dict:
+    """Expected Calibration Error on out-of-sample (test) data.
+
+    Bins predicted P(correct) into equal-width intervals, compares predicted
+    vs actual accuracy per bin. Returns ECE and per-bin breakdown.
+    """
+    bin_edges = np.linspace(0.0, 1.0, n_bins + 1)
+    bins = []
+    ece = 0.0
+    total = len(probs)
+
+    for lo, hi in zip(bin_edges[:-1], bin_edges[1:]):
+        mask = (probs >= lo) & (probs < hi) if hi < 1.0 else (probs >= lo) & (probs <= hi)
+        n = int(mask.sum())
+        if n == 0:
+            bins.append({"range": [round(lo, 2), round(hi, 2)], "n": 0,
+                         "avg_pred": None, "avg_actual": None, "gap": None})
+            continue
+        avg_pred = float(probs[mask].mean())
+        avg_actual = float(correct[mask].mean())
+        gap = abs(avg_pred - avg_actual)
+        ece += gap * n / total
+        bins.append({"range": [round(lo, 2), round(hi, 2)], "n": n,
+                     "avg_pred": round(avg_pred, 4), "avg_actual": round(avg_actual, 4),
+                     "gap": round(gap, 4)})
+
+    return {"ece": round(ece, 4), "n_bins": n_bins, "bins": bins}
+
+
+def cohens_h(p1: float, p2: float) -> float:
+    """Cohen's h effect size for two proportions."""
+    import math
+    return abs(2 * math.asin(math.sqrt(p1)) - 2 * math.asin(math.sqrt(p2)))
+
+
+# ─────────────────────────────────────────────
 # Stratified sampling (same as evaluate.py)
 # ─────────────────────────────────────────────
 
@@ -223,6 +262,7 @@ def main():
         "val_r2_prob_range": [round(float(p_r2_val.min()), 4), round(float(p_r2_val.max()), 4)],
         "val_set_size": len(VAL_DATA),
         "p_llm_correct": P_LLM_CORRECT,
+        "note_regularization": "C=1e10 (effectively unregularized); 1 feature per model, 2 params fit to 3100+ samples",
     }
 
     # ── Step 3: Calibrate test set scores ──
@@ -233,6 +273,15 @@ def main():
     p_r2_test = platt_r2.predict_proba(X_r2_test)[:, 1]
     print(f"  Test R1 P(correct) range: [{p_r1_test.min():.4f}, {p_r1_test.max():.4f}]")
     print(f"  Test R2 P(correct) range: [{p_r2_test.min():.4f}, {p_r2_test.max():.4f}]")
+
+    # ── Step 3b: ECE on test set (out-of-sample calibration quality) ──
+    print("\n[Step 3b] Expected Calibration Error (test set)")
+    y_r1_test = np.array([s["r1_correct"] for s in test_scores])
+    y_r2_test = np.array([s["r2_correct"] for s in test_scores])
+    ece_r1 = compute_ece(p_r1_test, y_r1_test)
+    ece_r2 = compute_ece(p_r2_test, y_r2_test)
+    print(f"  R1 ECE = {ece_r1['ece']:.4f} (10 bins, n={len(test_scores)})")
+    print(f"  R2 ECE = {ece_r2['ece']:.4f} (10 bins, n={len(test_scores)})")
 
     # ── Step 4: τ sweep on full test set ──
     print("\n[Step 4] τ sweep (0.50 → 0.95) on full test set")
@@ -481,6 +530,19 @@ def main():
         },
         "seed_results": seed_results,
         "platt_params": platt_params,
+        "calibration": {
+            "r1_ece": ece_r1["ece"],
+            "r2_ece": ece_r2["ece"],
+            "r1_bins": ece_r1["bins"],
+            "r2_bins": ece_r2["bins"],
+            "note": "ECE computed on test set (out-of-sample), 10 equal-width bins",
+        },
+        "effect_size": {
+            "cohens_h_with_llm": round(cohens_h(
+                match_with_llm["accuracy_no_llm"],
+                grid_with_llm_result["accuracy_no_llm"]), 4),
+            "note": "Cohen's h for calibrated vs grid cheap-stage accuracy (with-LLM thresholds)",
+        },
         "p_llm_correct": P_LLM_CORRECT,
         "test_set_size": len(TEST_DATA),
     }
