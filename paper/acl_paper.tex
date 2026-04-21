@@ -67,7 +67,7 @@ We make four contributions. First, we evaluate four routers under a common proto
 The CLINC150 benchmark \citep{larson2019evaluation} comprises 150 in-domain intents across 10 domains plus an out-of-scope (OOS) class, and was explicitly designed to stress-test intent classifiers under distribution shift. Strong baselines include SetFit \citep{tunstall2022efficient}, which uses contrastive few-shot fine-tuning on sentence-transformer encoders, and fine-tuned DeBERTa. We use SetFit as a no-LLM baseline in our headline table (70.2\% on the full test set), and Claude Haiku~4.5 zero-shot as our cost ceiling.
 
 \paragraph{Cost-aware LLM cascades.}
-FrugalGPT \citep{chen2023frugalgpt} introduced the general cascade pattern (try a cheaper model first, escalate to a more expensive model only when the cheap model's confidence is low) on single-turn question answering tasks, reporting cost reductions of up to 98\% at matched accuracy. \citet{arora2024intent} recently evaluated SetFit and seven LLMs on CLINC150, proposing an uncertainty-based routing strategy that escalates low-confidence SetFit predictions to an LLM. Our cascade differs in two ways: (i)~it begins with a zero-parameter keyword stage that resolves 59\% of queries before any model runs, and (ii)~the cheap-stage comparison (\S\ref{sec:cheapstage}) shows that \emph{confidence calibration}, not standalone accuracy, determines cascade effectiveness, a finding their work does not explore.
+FrugalGPT \citep{chen2023frugalgpt} introduced the general cascade pattern (try a cheaper model first, escalate to a more expensive model only when the cheap model's confidence is low) on single-turn question answering tasks, reporting cost reductions of up to 98\% at matched accuracy. \citet{arora2024intent} recently evaluated SetFit and seven LLMs on CLINC150, proposing an uncertainty-based routing strategy that escalates low-confidence SetFit predictions to an LLM. Our cascade differs in three ways: (i)~it begins with a zero-parameter keyword stage that resolves 59\% of queries before any model runs, (ii)~the cheap-stage comparison (\S\ref{sec:cheapstage}) shows that \emph{confidence calibration}, not standalone accuracy, determines cascade effectiveness, a finding their work does not explore, and (iii)~our routing operates at the agent level (8-way) rather than the intent level (150-way), reflecting a production deployment where the router dispatches to task-specific agents. A direct head-to-head is not straightforward because their method uses SetFit softmax probabilities as the confidence signal while ours uses raw TF-IDF cosine similarities; however, our calibrated-routing ablation (\S\ref{sec:calibrated}) addresses the same calibration concern they leave open.
 
 \paragraph{Learned routers and model selection.}
 Hybrid~LLM \citep{ding2024hybridllm} trains a router to assign queries to a small or large model based on predicted difficulty, saving up to 40\% of large-model calls at matched quality (ICLR 2024). RouteLLM \citep{ong2025routellm} extends this with preference-data training, reporting over 85\% cost reduction on MT-Bench (ICLR 2025). AutoMix \citep{madaan2024automix} uses few-shot self-verification to decide whether to escalate from a small to a large model, achieving 50\%+ cost reduction. \citet{dekoninck2024unified} provide a theoretical foundation by deriving optimal strategies for both routing and cascading and unifying them into a single framework. FORC \citep{sakota2024forc} takes a meta-modeling approach, predicting per-query cost and performance without running candidate LLMs. Two recent surveys catalog the growing design space: \citet{survey2025routing} provides a taxonomy of routing strategies for resource optimisation, while \citet{survey2026dynamic} covers dynamic cascading specifically. Our cascade differs from these learned routers in that it requires \emph{no training data} beyond the existing agent inventory: the confidence signals come from the keyword and embedding stages themselves, making it deployable without the preference-data collection or quality-annotation steps that Hybrid~LLM, RouteLLM, and AutoMix require.
@@ -119,7 +119,13 @@ R3 and R4 API costs are measured directly from Anthropic response metadata (inpu
 
 \subsection{Main Results}
 
-Table~\ref{tab:main} lists accuracy and cost for all routers. R3 and R4+LLM have overlapping 95\% confidence intervals. Without the LLM fallback (R4 no-LLM), accuracy drops to 74.9\%, confirming that the LLM is doing real work on the 26\% of queries it handles, while the remaining 74\% are resolved by the cheap stages at equal accuracy.
+Table~\ref{tab:main} lists accuracy and cost for all routers. R3 and R4+LLM have overlapping 95\% confidence intervals. Without the LLM fallback (R4 no-LLM), accuracy drops to 74.9\%, confirming that the LLM is doing real work on the 26\% of queries it handles, while the remaining 74\% are resolved by the cheap stages at equal accuracy. Figure~\ref{fig:pareto} visualises the accuracy--cost Pareto frontier.
+
+\begin{center}
+\includegraphics[width=\linewidth]{figures/fig_pareto.png}
+\captionof{figure}{Cost-accuracy trade-off on CLINC150. R4 matches R3 accuracy ($\Delta$=0.3\,pp, not significant) while using 74\% fewer LLM calls. Grey markers show no-LLM baselines.}
+\label{fig:pareto}
+\end{center}
 
 \begin{center}
 \small
@@ -246,6 +252,14 @@ Calibrated & $\tau{=}0.75$ & \textbf{75.2} & \textbf{83.9} & \textbf{25.4} & $p{
 \end{tabular}
 \end{center}
 
+Figure~\ref{fig:tau} shows how accuracy and LLM usage vary with $\tau$.
+
+\begin{center}
+\includegraphics[width=\linewidth]{figures/fig_tau_tradeoff.png}
+\captionof{figure}{Calibrated threshold $\tau$ vs.\ expected accuracy (solid, left) and LLM call rate (dashed, right). The grid-search baseline is shown as a dotted line. $\tau{=}0.75$ achieves higher accuracy at lower LLM cost than grid search.}
+\label{fig:tau}
+\end{center}
+
 The primary advantage is interpretability, not accuracy: a single threshold $\tau = 0.75$ (``escalate when $P(\text{correct}) < 75\%$'') replaces two dataset-specific values with one that carries a probabilistic meaning. We hypothesize that this framing may transfer more easily to new domains than raw-score thresholds, but verifying this requires cross-domain evaluation, which we leave to future work.
 
 \subsection{Alternative Cheap Stages}
@@ -318,8 +332,6 @@ Code, tuned thresholds, per-seed trajectories, LLM call logs: \url{https://githu
 % ═══════════════════════════════════════════════════════════════
 % References
 % ═══════════════════════════════════════════════════════════════
-
-\bibliographystyle{acl_natbib}
 
 \begin{thebibliography}{6}
 \bibitem[Arora et~al.(2024)]{arora2024intent}
