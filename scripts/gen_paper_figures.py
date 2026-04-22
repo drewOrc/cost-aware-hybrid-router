@@ -128,12 +128,11 @@ def gen_pareto():
         ax.scatter(r["llm"], r["acc"], marker=r["marker"], color=r["color"],
                    s=ms**2, zorder=zord, edgecolors="white", linewidths=0.3)
 
-    # Arrow connecting R4+LLM and R3
-    ax.annotate("", xy=(26, 82.6), xytext=(100, 82.9),
-                arrowprops=dict(arrowstyle="<->", color="#0072B2", lw=0.8,
-                                connectionstyle="arc3,rad=0.06"))
+    # Dashed line connecting R4+LLM and R3 (nearly horizontal = same accuracy)
+    ax.plot([26, 100], [82.6, 82.9], ls='--', color="#0072B2",
+            lw=0.6, alpha=0.45, zorder=2)
     ax.annotate(r"$\Delta$=0.3pp (n.s.)" + "\n74% fewer LLM calls",
-                xy=(58, 84.8), fontsize=6.5, ha="center", color="#0072B2")
+                xy=(58, 83.8), fontsize=6.5, ha="center", color="#0072B2")
 
     # Labels — R3 right-aligned so text doesn't exceed right edge
     label_cfg = {

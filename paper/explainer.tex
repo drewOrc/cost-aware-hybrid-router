@@ -1,0 +1,80 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\setCJKmainfont{Heiti TC}
+\setmainfont{Times New Roman}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\definecolor{linkblue}{HTML}{0072B2}
+\hypersetup{colorlinks=true,linkcolor=linkblue,urlcolor=linkblue}
+\setlist{nosep}
+
+\title{\textbf{Paper 1 簡單解釋：成本感知混合路由}}
+\author{Bo-Yu Chen}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{一句話版本}
+
+\begin{quote}
+用便宜的文字比對先過濾掉簡單問題，只把難的丟給 AI，準確率一樣但省 74\% 的錢。
+\end{quote}
+
+\section*{比喻}
+
+想像你開一間客服中心，有 7 個專員（財務、旅遊、設備...）。每通電話進來，你需要先判斷「這通要轉給誰」。
+
+\textbf{現在的做法：}每通電話都請一位資深經理（LLM）來判斷。他很準，但很貴——每判斷一次都要付錢。
+
+\textbf{我們的做法：}先讓櫃台小姐（關鍵詞比對）看一眼。「我要轉帳」→ 明顯是財務，不用問經理。「訂機票」→ 明顯是旅遊。只有那些模糊不清的（「那個東西怎麼用？」），才真的去請經理判斷。
+
+結果：\textbf{74\% 的電話不需要經理就能正確轉接}，準確率跟全部都問經理一樣。
+
+\section*{四個角色}
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{角色} & \textbf{做什麼} & \textbf{成本} & \textbf{準確率} \\
+\midrule
+R1 關鍵詞 & 看到「轉帳」→ 財務 & 幾乎免費 & 64.8\% \\
+R2 TF-IDF & 用文字相似度比對 & 幾乎免費 & 74.0\% \\
+R3 LLM & 讓 Claude Haiku 判斷 & 每次付 API 費 & 82.9\% \\
+R4 混合 & R1 → R2 → 沒把握才問 R3 & 只有 26\% 需付費 & 82.6\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{核心發現}
+
+\begin{enumerate}
+\item \textbf{82.6\% vs 82.9\%} — 混合路由跟純 LLM 路由準確率幾乎一樣（統計上無顯著差異）
+\item \textbf{省 74\% 的 LLM 費用} — 因為大部分問題太簡單，不需要 AI 也能答對
+\item \textbf{校準比準確率重要} — 一個「知道自己不確定」的簡單模型，比一個「很準但過度自信」的大模型更適合當預過濾器
+\item \textbf{弱點是 OOS} — 超出範圍的查詢（「這不是我們的服務」），便宜階段判斷不好
+\end{enumerate}
+
+\section*{這跟 Paper 2 的關係}
+
+Paper 1 處理的是\textbf{單一回合}的問題：使用者說一句話，判斷該給誰。
+
+Paper 2 把同樣的「便宜先做、貴的後做」想法延伸到\textbf{多回合}：使用者有一個複雜的客服需求（退貨＋換貨＋改地址），用便宜模型先拆解計畫，再讓貴的模型去執行。
+
+兩篇共享同一個核心想法：\textbf{不是每個子任務都需要最貴的 AI。}
+
+\section*{數字速記}
+
+\begin{itemize}
+\item 測試集：CLINC150（5,500 筆查詢，150 個意圖 → 8 個類別）
+\item 種子：42, 43, 44（每個 400 筆）
+\item McNemar $p > 0.37$（三個種子都不顯著）
+\item 總實驗 API 成本：\$0.44
+\item 程式碼：\url{https://github.com/drewOrc/cost-aware-hybrid-router}
+\end{itemize}
+
+\end{document}

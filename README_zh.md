@@ -84,11 +84,13 @@ python paper/figures.py
 
 ## 論文
 
-Workshop 論文草稿及出版品質圖表位於 [`paper/`](paper/)：
+Workshop 論文（ACL 雙欄格式）及出版品質圖表位於 [`paper/`](paper/)：
 
-- [`Cost-Aware_Hybrid_Routing_Paper.pdf`](paper/Cost-Aware_Hybrid_Routing_Paper.pdf) — 可提交 PDF
-- [`draft_v0.md`](paper/draft_v0.md) — Markdown 原始稿（含內嵌圖表）
-- [`figures.py`](paper/figures.py) — 可重現圖表產生器（4 張圖，300 DPI）
+- [`acl_paper.pdf`](paper/acl_paper.pdf) — 投稿用 PDF（LaTeX 編譯）
+- [`acl_paper.tex`](paper/acl_paper.tex) — LaTeX 原始碼
+- [`acl_paper_zh.md`](paper/acl_paper_zh.md) — 完整中文翻譯
+- [`explainer.md`](paper/explainer.md) / [`explainer.pdf`](paper/explainer.pdf) — 簡單解釋版（非技術讀者）
+- [`figures.py`](paper/figures.py) — 可重現圖表產生器（5 張圖，300 DPI）
 
 ![Per-agent heatmap](paper/figures/F3_per_agent_heatmap.png)
 
@@ -117,10 +119,12 @@ cost-aware-hybrid-router/
 │   ├── metrics_seed{42,43,44}.json
 │   └── metrics_merged.json    ← 主要結果檔案
 └── paper/
+    ├── acl_paper.tex/pdf
+    ├── acl_paper_zh.md          ← 完整中文翻譯
+    ├── explainer.md/pdf         ← 簡單解釋版（非技術讀者）
     ├── Cost-Aware_Hybrid_Routing_Paper.docx/pdf
-    ├── draft_v0.md
     ├── figures.py
-    └── figures/F1-F4.png
+    └── figures/F1-F5.png
 ```
 
 ---

@@ -105,6 +105,8 @@ Workshop paper (ACL two-column format) and publication-quality figures are in [`
 
 - [`acl_paper.pdf`](paper/acl_paper.pdf) — Submission-ready PDF (compiled from LaTeX)
 - [`acl_paper.tex`](paper/acl_paper.tex) — LaTeX source
+- [`acl_paper_zh.md`](paper/acl_paper_zh.md) — 完整中文翻譯
+- [`explainer.md`](paper/explainer.md) / [`explainer.pdf`](paper/explainer.pdf) — 簡單解釋版（非技術讀者）
 - [`figures.py`](paper/figures.py) — Reproducible figure generator (5 figures, 300 DPI)
 
 ![Per-agent heatmap](paper/figures/F3_per_agent_heatmap.png)
@@ -142,6 +144,8 @@ cost-aware-hybrid-router/
 │   └── figures/
 └── paper/
     ├── acl_paper.tex/pdf
+    ├── acl_paper_zh.md          ← 完整中文翻譯
+    ├── explainer.md/pdf         ← 簡單解釋版（非技術讀者）
     ├── Cost-Aware_Hybrid_Routing_Paper.docx/pdf
     ├── figures.py
     └── figures/F1-F5.png
