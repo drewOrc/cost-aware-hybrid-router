@@ -57,7 +57,9 @@ In deployed multi-agent LLM systems, each user utterance makes a first hop to a 
 
 We ask whether the per-turn LLM call is necessary at all. A keyword match or embedding lookup against per-agent centroids is cheaper than an API call by three to four orders of magnitude, runs on local compute with millisecond latency, and can be as accurate as the LLM on easy queries. If the easy queries could be identified with a cheap confidence signal and only the hard queries were sent to the LLM, the per-turn routing cost would drop by roughly an order of magnitude. We measure this on CLINC150, a standard 150-intent benchmark, by evaluating four routers spanning three orders of magnitude of cost and tracing the accuracy-cost Pareto frontier.
 
-We make four contributions. First, we evaluate four routers under a common protocol: keyword (R1), embedding-nearest-centroid (R2), Claude Haiku~4.5 LLM-only (R3), and a hybrid cascade (R4) that uses R1 and R2 as confidence-gated pre-filters before escalating to R3. Second, we perform a 3-seed paper-grade evaluation on a stratified subsample of 400 queries per seed (seeds 42, 43, and 44; 1,200 pooled), and report Wilson 95\% confidence intervals and McNemar paired tests comparing R3 and R4 on the same queries. Third, we find that R4 matches R3 accuracy within 0.4\,pp (82.6\% vs 82.9\%) while escalating to the LLM on only 26\% of queries, a 74.3\% reduction in LLM cost with no significant accuracy loss at $\alpha$=0.05. Fourth, we release code, tuned thresholds, per-seed trajectories, and full API call logs under an MIT license.
+Crucially, the cascade requires no task-specific training data: the keyword lists come from the agent inventory and the TF-IDF centroids are fit on generic training examples, making it deployable in any multi-agent system without fine-tuning. The resulting accuracy (82.6\%) reflects this zero-shot constraint; a fine-tuned classifier would score higher but would also need labelled data for every new domain, defeating the plug-and-play advantage.
+
+We make four contributions. First, we evaluate four routers under a common protocol: keyword (R1), embedding-nearest-centroid (R2), Claude Haiku~4.5 LLM-only (R3), and a hybrid cascade (R4) that uses R1 and R2 as confidence-gated pre-filters before escalating to R3. Second, we perform a 3-seed paper-grade evaluation on a stratified subsample of 400 queries per seed (seeds 42, 43, and 44; 1,200 pooled), and report Wilson 95\% confidence intervals and McNemar paired tests comparing R3 and R4 on the same queries. Third, we find that R4 matches R3 accuracy within 0.4\,pp (82.6\% vs 82.9\%) while escalating to the LLM on only 26\% of queries, a 74.3\% reduction in LLM cost with no significant accuracy loss at $\alpha$=0.05. Fourth, we show that in a confidence-gated cascade, the cheap stage's \emph{calibration} matters more than its standalone accuracy: a 109M-parameter encoder (76.2\%) produces a worse cascade than TF-IDF (74.0\%) because its confidence scores are poorly calibrated (\S\ref{sec:cheapstage}). We release code, tuned thresholds, per-seed trajectories, and full API call logs under an MIT license.
 
 % ═══════════════════════════════════════════════════════════════
 \section{Related Work}
@@ -73,7 +75,7 @@ FrugalGPT \citep{chen2023frugalgpt} introduced the general cascade pattern (try 
 Hybrid~LLM \citep{ding2024hybridllm} trains a router to assign queries to a small or large model based on predicted difficulty, saving up to 40\% of large-model calls at matched quality (ICLR 2024). RouteLLM \citep{ong2025routellm} extends this with preference-data training, reporting over 85\% cost reduction on MT-Bench (ICLR 2025). AutoMix \citep{madaan2024automix} uses few-shot self-verification to decide whether to escalate from a small to a large model, achieving 50\%+ cost reduction. \citet{dekoninck2024unified} provide a theoretical foundation by deriving optimal strategies for both routing and cascading and unifying them into a single framework. FORC \citep{sakota2024forc} takes a meta-modeling approach, predicting per-query cost and performance without running candidate LLMs. Two recent surveys catalog the growing design space: \citet{survey2025routing} provides a taxonomy of routing strategies for resource optimisation, while \citet{survey2026dynamic} covers dynamic cascading specifically. Our cascade differs from these learned routers in that it requires \emph{no training data} beyond the existing agent inventory: the confidence signals come from the keyword and embedding stages themselves, making it deployable without the preference-data collection or quality-annotation steps that Hybrid~LLM, RouteLLM, and AutoMix require.
 
 \paragraph{Agent-routing systems.}
-CrewAI, LangGraph, and AutoGen all default to an LLM supervisor for intent routing. Some production deployments add a keyword or regex pre-filter, but we are not aware of a published study that measures how much of the routing workload a non-LLM stage can absorb, or at what accuracy cost. We provide that measurement on CLINC150.
+CrewAI, LangGraph, and AutoGen all default to an LLM supervisor for intent routing. Semantic Router \citep{semanticrouter2024} takes the opposite approach, routing queries via embedding similarity without any LLM call. Some production deployments add a keyword or regex pre-filter, but we are not aware of a published ablation that measures how much of the routing workload a non-LLM stage can absorb, or at what accuracy cost. We provide that measurement on CLINC150.
 
 % ═══════════════════════════════════════════════════════════════
 \section{Method}
@@ -300,6 +302,9 @@ The cascade works because CLINC150's difficulty distribution is bimodal. Most in
 \paragraph{Cascade ordering.}
 The R1$\to$R2$\to$R3 ordering follows a cost-ascending principle: keyword matching is essentially free, TF-IDF cosine lookup adds marginal compute, and the LLM API call dominates cost. We do not explore R2$\to$R1$\to$R3 because R2 subsumes R1's discriminative ability: any query resolvable by keyword match is also handled by embedding similarity, but not vice versa. Running the more capable stage first would add cost on the 59\% of queries that R1 already resolves.
 
+\paragraph{Why not fine-tune?}
+A fine-tuned classifier (e.g., SetFit or DeBERTa) would likely exceed 90\% on CLINC150's 8-way task, well above our cascade's 82.6\%. The trade-off is deployment friction: fine-tuning requires labelled examples for every target agent, retraining whenever the agent inventory changes, and a model-serving endpoint. The cascade requires none of these; it derives confidence signals from the agent inventory itself (keyword lists, TF-IDF centroids) and works out of the box when agents are added or removed. In production systems where the agent set evolves frequently, this zero-shot property can outweigh the accuracy gap.
+
 \paragraph{Latency.}
 The cascade also improves latency. On a Mac Mini (M2), R1 runs in 3.2\,ms and R2 in 0.3\,ms, both 100--1,500$\times$ faster than the $\sim$500\,ms API round-trip for R3. Since 74\% of queries stop before reaching the LLM, the median latency drops from hundreds of milliseconds to single digits.
 
@@ -408,6 +413,11 @@ John~C. Platt. 1999.
 Jasper Dekoninck, Maximilian Baader, and Martin Vechev. 2025.
 \newblock A Unified Approach to Routing and Cascading for {LLMs}.
 \newblock In \emph{Proceedings of ICML 2025}.
+
+\bibitem[Aurelio~AI(2024)]{semanticrouter2024}
+Aurelio~AI. 2024.
+\newblock Semantic Router.
+\newblock \url{https://github.com/aurelio-labs/semantic-router}.
 \end{thebibliography}
 
 \end{multicols}
