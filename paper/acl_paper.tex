@@ -242,6 +242,7 @@ Table~\ref{tab:calibrated} compares the two approaches using cheap-stage accurac
 \small
 \captionof{table}{Grid-search vs.\ calibrated thresholds (full test, $n = 5{,}500$). Acc.\ = cheap-stage accuracy (no LLM). Exp.\ = expected with-LLM accuracy ($P_{\text{LLM}} = 0.856$; see footnote).}
 \label{tab:calibrated}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{@{}lccccc@{}}
 \toprule
 \textbf{Method} & \textbf{Threshold} & \textbf{Acc.} & \textbf{Exp.} & \textbf{LLM\%} & \textbf{McNemar} \\
@@ -249,7 +250,7 @@ Table~\ref{tab:calibrated} compares the two approaches using cheap-stage accurac
 Grid search & $k_t{=}0.5, e_t{=}0.1$ & 74.4 & 83.0 & 26.0 & --- \\
 Calibrated & $\tau{=}0.75$ & \textbf{75.2} & \textbf{83.9} & \textbf{25.4} & $p{<}0.001$ \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{center}
 
 Figure~\ref{fig:tau} shows how accuracy and LLM usage vary with $\tau$.
