@@ -91,7 +91,7 @@ We use the CLINC150 test split (5,500 queries, including 1,000 OOS queries). Fol
 
 \textbf{R2: TF-IDF nearest-centroid router.} We fit a TF-IDF vectoriser (10K features, unigram + bigram, sublinear TF) on the CLINC150 training set and compute a per-agent centroid as the mean TF-IDF vector. At inference, a query is vectorised and compared to all centroids by cosine similarity; the nearest-centroid agent is returned. R2's confidence is the cosine similarity to the top-1 centroid. We chose TF-IDF over neural sentence encoders (e.g.\ MiniLM, MPNet) because its low-magnitude confidence scores yield better calibration for the cascade's confidence-gating mechanism (\S\ref{sec:cheapstage}).
 
-\textbf{R3: LLM router.} Claude Haiku~4.5 (\texttt{claude-haiku-4-5-20251001}) with a short system prompt listing the 8 target agents and a description of each. Temperature is 0. Each query is a single API call with no in-context examples.
+\textbf{R3: LLM router.} We use Claude Haiku~4.5 with a short system prompt listing the 8 target agents and a description of each. Temperature is 0; each query is a single API call with no in-context examples (model ID: \texttt{claude\text{-}haiku\text{-}4\text{-}5\text{-}20251001}).
 
 \textbf{R4: Hybrid cascade.} A confidence-gated cascade over R1 $\to$ R2 $\to$ R3 with two thresholds ($k_t$, $e_t$):
 \begin{equation*}
@@ -337,7 +337,7 @@ We thank Professor Ramin Sahba for suggesting calibrated routing via Platt scali
 \section*{Reproducibility Statement}
 % ═══════════════════════════════════════════════════════════════
 
-Code, tuned thresholds, per-seed trajectories, LLM call logs: \url{https://github.com/drewOrc/cost-aware-hybrid-router} (MIT). Model: \texttt{claude-haiku-4-5-20251001}. Seeds: 42, 43, 44. R2: TF-IDF (scikit-learn). Total API cost: \textbf{\$0.44}. We verified reproducibility by running the full 3-seed experiment twice: Run\,1 vs Run\,2 accuracy was 83.75\% vs 83.75\% (seed~42), 82.50\% vs 82.50\% (seed~43), 82.00\% vs 83.00\% (seed~44). All differences are $\leq$\,0.5\,pp, attributable to rate-limited API retries, with all qualitative conclusions unchanged.
+Code, tuned thresholds, per-seed trajectories, LLM call logs: \url{https://github.com/drewOrc/cost-aware-hybrid-router} (MIT). Model: \texttt{claude\text{-}haiku\text{-}4\text{-}5\text{-}20251001}. Seeds: 42, 43, 44. R2: TF-IDF (scikit-learn). Total API cost: \textbf{\$0.44}. We verified reproducibility by running the full 3-seed experiment twice: Run\,1 vs Run\,2 accuracy was 83.75\% vs 83.75\% (seed~42), 82.50\% vs 82.50\% (seed~43), 82.00\% vs 83.00\% (seed~44). All differences are $\leq$\,0.5\,pp, attributable to rate-limited API retries, with all qualitative conclusions unchanged.
 
 % ═══════════════════════════════════════════════════════════════
 % References
