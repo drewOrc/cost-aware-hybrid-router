@@ -72,7 +72,7 @@ def gen_tau_tradeoff():
     ax1.set_ylabel("Expected accuracy (%)", color=color_acc)
     ax1.tick_params(axis="y", labelcolor=color_acc)
     ax1.set_xlim(0.50, 0.95)
-    ax1.set_ylim(73, 89)
+    ax1.set_ylim(73, 90)
 
     # LLM rate line (right y-axis)
     ax2 = ax1.twinx()
@@ -90,7 +90,7 @@ def gen_tau_tradeoff():
              "D", color=color_llm, markersize=4, zorder=5)
     ax1.annotate(r"$\tau\!=\!0.75$" + "\n83.9%, 25.4% LLM",
                  xy=(0.75, tau_075["accuracy_with_llm_expected"] * 100),
-                 xytext=(0.80, 86.5), fontsize=6.5,
+                 xytext=(0.62, 87.5), fontsize=6.5,
                  arrowprops=dict(arrowstyle="->", color="gray", lw=0.6),
                  ha="left", color="gray")
 
@@ -131,26 +131,31 @@ def gen_pareto():
     # Arrow connecting R4+LLM and R3
     ax.annotate("", xy=(26, 82.6), xytext=(100, 82.9),
                 arrowprops=dict(arrowstyle="<->", color="#0072B2", lw=0.8,
-                                connectionstyle="arc3,rad=0.1"))
+                                connectionstyle="arc3,rad=0.06"))
     ax.annotate(r"$\Delta$=0.3pp (n.s.)" + "\n74% fewer LLM calls",
-                xy=(58, 83.8), fontsize=6.5, ha="center", color="#0072B2")
+                xy=(58, 84.8), fontsize=6.5, ha="center", color="#0072B2")
 
-    # Labels
-    offsets = {
-        "R1 keyword": (8, -2), "R2 embedding": (8, -2),
-        "SetFit": (8, -2), "R4 no-LLM": (8, 3),
-        "R3 LLM-only": (-8, -10), "R4+LLM (ours)": (-8, -10),
+    # Labels — R3 right-aligned so text doesn't exceed right edge
+    label_cfg = {
+        "R1 keyword":     {"offset": (8, -2)},
+        "R2 embedding":   {"offset": (8, -2)},
+        "SetFit":         {"offset": (8, -2)},
+        "R4 no-LLM":     {"offset": (8, 3)},
+        "R3 LLM-only":   {"offset": (-5, -12), "ha": "right"},
+        "R4+LLM (ours)": {"offset": (-8, -10)},
     }
     for r in routers:
-        dx, dy = offsets.get(r["name"], (5, 5))
+        cfg = label_cfg.get(r["name"], {"offset": (5, 5)})
+        dx, dy = cfg["offset"]
+        ha = cfg.get("ha", "left")
         ax.annotate(r["name"], xy=(r["llm"], r["acc"]),
                     xytext=(dx, dy), textcoords="offset points",
-                    fontsize=6, color=r["color"])
+                    fontsize=6, color=r["color"], ha=ha)
 
     ax.set_xlabel(r"LLM call rate (%) $\rightarrow$ higher cost")
     ax.set_ylabel("Accuracy (%)")
     ax.set_xlim(-5, 108)
-    ax.set_ylim(62, 86)
+    ax.set_ylim(62, 87)
     ax.grid(True, alpha=0.15, linewidth=0.4)
     fig.tight_layout(pad=0.3)
 
